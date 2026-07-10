@@ -7,6 +7,10 @@
 <meta name="description" content="Fyndit is a hand-curated list of the best gadget, fashion, home, and beauty deals in Nigeria — spotted daily before they blow up." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#161616" />
+<link rel="icon" type="image/png" href="/icon-192.png" />
+<link rel="apple-touch-icon" href="/icon-192.png" />
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #F7F5F2; }
@@ -50,6 +54,16 @@
   .field input, .field select { border: 1.5px solid #E3DDD0; border-radius: 10px; padding: 12px 14px; font-size: 15px; color: #161616; background: #FFFFFF; outline: none; font-family: 'Inter', sans-serif; }
   .submit-btn { width: 100%; margin-top: 8px; background: #FF5A3C; color: #161616; border: none; border-radius: 12px; padding: 14px 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 15px; }
   .submit-btn:disabled { background: #D8D2C6; color: #8A8577; }
+  .footer { max-width: 720px; margin: 0 auto; padding: 20px 20px 40px; text-align: center; }
+  .footer-contact { display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 13px; }
+  .footer-contact a { color: #5C6178; text-decoration: none; font-weight: 600; }
+  .footer-contact .dot { color: #D8D2C6; }
+  .footer-admin { margin-top: 14px; color: #D8D2C6; font-size: 13px; display: inline-block; padding: 6px 14px; }
+  .pw-modal { background: #F7F5F2; width: 100%; max-width: 360px; border-radius: 20px; padding: 24px; }
+  .pw-modal h3 { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 17px; color: #161616; margin: 0 0 14px; }
+  .pw-modal input { width: 100%; border: 1.5px solid #E3DDD0; border-radius: 10px; padding: 12px 14px; font-size: 15px; outline: none; margin-bottom: 10px; }
+  .pw-modal .pw-err { color: #FF5A3C; font-size: 12.5px; margin-bottom: 10px; }
+  .pw-modal .pw-btn { width: 100%; background: #161616; color: #F7F5F2; border: none; border-radius: 10px; padding: 12px 0; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -67,6 +81,8 @@
     };
     const CATEGORIES = ["All", "Gadgets", "Fashion", "Home", "Beauty"];
 
+    const ADMIN_PASSWORD = "kenNydee12.";
+
     let state = {
       products: null,
       loading: true,
@@ -75,6 +91,10 @@
       query: "",
       showAdd: false,
       editMode: false,
+      isAdmin: false,
+      showPwModal: false,
+      pwError: false,
+      pwIntent: null,
     };
 
     function setState(patch) {
@@ -183,6 +203,22 @@
       `;
     }
 
+    function renderPasswordModal() {
+      if (!state.showPwModal) return "";
+      return `
+        <div class="modal-overlay" id="pwOverlay">
+          <div class="pw-modal" id="pwModalBox">
+            <h3>Enter admin password</h3>
+            <form id="pwForm">
+              <input type="password" id="pwInput" placeholder="Password" autocomplete="off" />
+              ${state.pwError ? `<div class="pw-err">Incorrect password. Try again.</div>` : ""}
+              <button type="submit" class="pw-btn">Unlock</button>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
     function render() {
       const filtered = (state.products || []).filter(p => {
         const matchCat = state.category === "All" || p.category === state.category;
@@ -223,17 +259,28 @@
             ${state.error ? `<div class="err">${esc(state.error)}</div>` : ""}
             <div class="search-row">
               <input class="search-input" id="searchInput" placeholder="Search deals..." value="${esc(state.query)}" />
-              <button class="add-btn btn" id="openAdd">+ Add</button>
             </div>
             <div class="cat-row">
               <div class="cat-scroll">${catButtons}</div>
-              <button class="manage-btn ${state.editMode ? "active" : ""}" id="toggleManage">${state.editMode ? "Done" : "Manage"}</button>
+              ${state.editMode ? `<button class="add-btn btn" id="openAdd" style="margin-left:8px;">+ Add</button><button class="manage-btn active" id="toggleManage" style="margin-left:8px;">Done</button>` : ""}
             </div>
           </div>
 
           <main class="grid-main">${gridHtml}</main>
+
+          <footer class="footer">
+            <div class="footer-contact">
+              <a href="https://wa.me/2347082795417" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+              <span class="dot">·</span>
+              <a href="mailto:miracleobodo34@gmail.com">Email</a>
+              <span class="dot">·</span>
+              <a href="https://instagram.com/Kings.graphic8" target="_blank" rel="noopener noreferrer">Instagram</a>
+            </div>
+            <div class="footer-admin" id="adminTrigger">·</div>
+          </footer>
         </div>
         ${renderModal()}
+        ${renderPasswordModal()}
       `;
 
       attachEvents();
@@ -251,11 +298,42 @@
         });
       }
 
+      const adminTrigger = document.getElementById("adminTrigger");
+      if (adminTrigger) {
+        adminTrigger.addEventListener("click", () => {
+          if (state.isAdmin) {
+            setState({ editMode: true });
+          } else {
+            setState({ showPwModal: true, pwError: false, pwIntent: "unlock" });
+          }
+        });
+      }
+
+      const toggleManage = document.getElementById("toggleManage");
+      if (toggleManage) toggleManage.addEventListener("click", () => setState({ editMode: false }));
+
       const openAdd = document.getElementById("openAdd");
       if (openAdd) openAdd.addEventListener("click", () => setState({ showAdd: true }));
 
-      const toggleManage = document.getElementById("toggleManage");
-      if (toggleManage) toggleManage.addEventListener("click", () => setState({ editMode: !state.editMode }));
+      const pwForm = document.getElementById("pwForm");
+      if (pwForm) {
+        pwForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const val = document.getElementById("pwInput").value;
+          if (val === ADMIN_PASSWORD) {
+            setState({ isAdmin: true, showPwModal: false, pwError: false, editMode: true });
+          } else {
+            setState({ pwError: true });
+          }
+        });
+      }
+
+      const pwOverlay = document.getElementById("pwOverlay");
+      if (pwOverlay) {
+        pwOverlay.addEventListener("click", (e) => {
+          if (e.target.id === "pwOverlay") setState({ showPwModal: false, pwError: false });
+        });
+      }
 
       document.querySelectorAll("[data-cat]").forEach(btn => {
         btn.addEventListener("click", () => setState({ category: btn.getAttribute("data-cat") }));
