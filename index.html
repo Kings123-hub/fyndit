@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fyndit — Best Gadget, Fashion & Beauty Deals in Nigeria</title>
+<meta name="description" content="Fyndit is a hand-curated list of the best gadget, fashion, home, and beauty deals in Nigeria — spotted daily before they blow up." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #F7F5F2; }
+  ::selection { background: #FF5A3C; color: #161616; }
+  input:focus, select:focus { border-color: #FF5A3C !important; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useCallback } = React;
+
+const SUPABASE_URL = "https://mrnssxulfkacrrgsixnf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_F0VmiKD01luzB61meBYqSQ_y98ofr0I";
+const TABLE = "products";
+
+const REST_URL = `${SUPABASE_URL}/rest/v1/${TABLE}`;
+const HEADERS = {
+  apikey: SUPABASE_KEY,
+  Authorization: `Bearer ${SUPABASE_KEY}`,
+  "Content-Type": "application/json",
+};
+
+const CATEGORIES = ["All", "Gadgets", "Fashion", "Home", "Beauty"];
+
+async function fetchProducts() {
+  const res = await fetch(`${REST_URL}?select=*&order=id.desc`, { headers: HEADERS });
+  if (!res.ok) throw new Error("Failed to load products");
+  return res.json();
+}
+
+async function insertProduct(product) {
+  const res = await fetch(REST_URL, {
+    method: "POST",
+    headers: { ...HEADERS, Prefer: "return=representation" },
+    body: JSON.stringify(product),
+  });
+  if (!res.ok) throw new Error("Failed to add product");
+  return res.json();
+}
+
+async function deleteProduct(id) {
+  const res = await fetch(`${REST_URL}?id=eq.${id}`, { method: "DELETE", headers: HEADERS });
+  if (!res.ok) throw new Error("Failed to delete product");
+}
+
+function useProducts() {
+  const [products, setProducts] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchProducts();
+      setProducts(data);
+      setError(null);
+    } catch (e) {
+      setError("Couldn't load deals right now. Check your connection and try again.");
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const add = useCallback(async (product) => {
+    try {
+      await insertProduct(product);
+      await load();
+    } catch (e) {
+      setError("Couldn't post that deal. Try again.");
+    }
+  }, [load]);
+
+  const remove = useCallback(async (id) => {
+    const prev = products;
+    setProducts((p) => p.filter((x) => x.id !== id));
+    try {
+      await deleteProduct(id);
+    } catch (e) {
+      setProducts(prev);
+      setError("Couldn't remove that deal. Try again.");
+    }
+  }, [products]);
+
+  return { products, loading, error, add, remove, setError };
+}
+
+function AddProductModal({ onClose, onAdd }) {
+  const [form, setForm] = useState({ name: "", category: "Gadgets", price: "", note: "", link: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const canSubmit = form.name.trim() && form.price.trim() && form.link.trim();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!canSubmit || submitting) return;
+    setSubmitting(true);
+    await onAdd({ ...form, spotted: "Just now" });
+    setSubmitting(false);
+    onClose();
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(22,22,22,0.72)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 50 }} onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "#F7F5F2", width: "100%", maxWidth: 520, borderRadius: "20px 20px 0 0", padding: "28px 24px 32px", maxHeight: "88vh", overflowY: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+          <h2 style={{ fontFamily: "'Archivo', sans-serif", fontWeight: 800, fontSize: 22, color: "#161616", margin: 0 }}>Flag a new deal</h2>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#161616", padding: 6 }}>✕</button>
+        </div>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <Field label="Product name">
+            <input value={form.name} onChange={(e) => setForm(f => ({...f, name: e.target.value}))} placeholder="e.g. Wireless Earbuds Pro" style={inputStyle} required />
+          </Field>
+          <Field label="Category">
+            <select value={form.category} onChange={(e) => setForm(f => ({...f, category: e.target.value}))} style={inputStyle}>
+              {CATEGORIES.filter(c => c !== "All").map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </Field>
+          <Field label="Price">
+            <input value={form.price} onChange={(e) => setForm(f => ({...f, price: e.target.value}))} placeholder="e.g. ₦8,500" style={inputStyle} required />
+          </Field>
+          <Field label="Your note (make it searchable)">
+            <input value={form.note} onChange={(e) => setForm(f => ({...f, note: e.target.value}))} placeholder="e.g. Best earbuds under ₦10k" style={inputStyle} />
+          </Field>
+          <Field label="Affiliate link">
+            <input value={form.link} onChange={(e) => setForm(f => ({...f, link: e.target.value}))} placeholder="https://..." style={inputStyle} required type="url" />
+          </Field>
+          <button type="submit" disabled={!canSubmit || submitting} style={{ marginTop: 8, background: canSubmit ? "#FF5A3C" : "#D8D2C6", color: "#161616", border: "none", borderRadius: 12, padding: "14px 0", fontFamily: "'Archivo', sans-serif", fontWeight: 800, fontSize: 15, cursor: canSubmit ? "pointer" : "not-allowed" }}>
+            {submitting ? "Posting..." : "Post deal"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, children }) {
+  return (
+    <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <span style={{ fontSize: 12, fontWeight: 700, color: "#5C6178", textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</span>
+      {children}
+    </label>
+  );
+}
+
+const inputStyle = { border: "1.5px solid #E3DDD0", borderRadius: 10, padding: "12px 14px", fontSize: 15, color: "#161616", background: "#FFFFFF", outline: "none", fontFamily: "'Inter', sans-serif" };
+
+function ProductCard({ product, onDelete, editMode }) {
+  return (
+    <div style={{ background: "#EDE8E0", borderRadius: 16, padding: 18, position: "relative", display: "flex", flexDirection: "column", gap: 10, border: "1px solid #E3DDD0" }}>
+      {editMode && (
+        <button onClick={() => onDelete(product.id)} style={{ position: "absolute", top: 12, right: 12, background: "#161616", color: "#F7F5F2", border: "none", borderRadius: 8, width: 30, height: 30, cursor: "pointer" }}>✕</button>
+      )}
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 5, alignSelf: "flex-start", background: "#161616", color: "#F7F5F2", fontSize: 10.5, fontWeight: 700, padding: "5px 9px", borderRadius: 999, textTransform: "uppercase" }}>
+        Spotted {product.spotted}
+      </div>
+      <h3 style={{ fontFamily: "'Archivo', sans-serif", fontWeight: 800, fontSize: 18, color: "#161616", margin: 0, paddingRight: editMode ? 30 : 0 }}>{product.name}</h3>
+      {product.note && <p style={{ fontSize: 13.5, color: "#5C6178", margin: 0 }}>{product.note}</p>}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+        <span style={{ fontFamily: "'Archivo', sans-serif", fontWeight: 800, fontSize: 20, color: "#161616" }}>{product.price}</span>
+        <a href={product.link} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#FF5A3C", color: "#161616", fontFamily: "'Archivo', sans-serif", fontWeight: 800, fontSize: 13, textDecoration: "none", padding: "9px 14px", borderRadius: 10 }}>
+          Get deal →
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const { products, loading, error, add, remove } = useProducts();
+  const [category, setCategory] = useState("All");
+  const [query, setQuery] = useState("");
+  const [showAdd, setShowAdd] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+
+  const filtered = (products || []).filter(p => {
+    const matchesCategory = category === "All" || p.category === category;
+    const matchesQuery = !query.trim() || p.name.toLowerCase().includes(query.toLowerCase()) || (p.note||"").toLowerCase().includes(query.toLowerCase());
+    return matchesCategory && matchesQuery;
+  });
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#F7F5F2" }}>
+      <header style={{ background: "#161616", padding: "48px 20px 40px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -60, right: -60, width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,90,60,0.25) 0%, transparent 70%)" }} />
+        <div style={{ maxWidth: 720, margin: "0 auto", position: "relative" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#FF5A3C", color: "#161616", fontSize: 11, fontWeight: 800, padding: "5px 10px", borderRadius: 999, textTransform: "uppercase", marginBottom: 16 }}>Curated daily</div>
+          <h1 style={{ fontFamily: "'Archivo', sans-serif", fontWeight: 900, fontSize: "clamp(32px, 7vw, 48px)", color: "#F7F5F2", margin: "0 0 12px" }}>Fyndit</h1>
+          <p style={{ fontSize: 16, color: "#B8B4A8", maxWidth: 460, margin: 0 }}>Deals I've personally hunted down across gadgets, fashion, home, and beauty — before they blow up.</p>
+        </div>
+      </header>
+
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "24px 20px 0" }}>
+        {error && <div style={{ background: "#FFE8E0", border: "1px solid #FF5A3C", color: "#7A2E1D", fontSize: 13, padding: "10px 14px", borderRadius: 10, marginBottom: 16 }}>{error}</div>}
+        <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search deals..." style={{ flex: 1, border: "1.5px solid #E3DDD0", borderRadius: 12, padding: "11px 14px", fontSize: 14, background: "#FFFFFF", outline: "none" }} />
+          <button onClick={() => setShowAdd(true)} style={{ background: "#161616", color: "#F7F5F2", border: "none", borderRadius: 12, padding: "11px 16px", fontFamily: "'Archivo', sans-serif", fontWeight: 700, fontSize: 13.5, cursor: "pointer" }}>+ Add</button>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+          <div style={{ display: "flex", gap: 8, overflowX: "auto" }}>
+            {CATEGORIES.map(c => (
+              <button key={c} onClick={() => setCategory(c)} style={{ background: category === c ? "#FF5A3C" : "transparent", color: "#161616", border: category === c ? "none" : "1.5px solid #D8D2C6", borderRadius: 999, padding: "7px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "'Archivo', sans-serif" }}>{c}</button>
+            ))}
+          </div>
+          <button onClick={() => setEditMode(v => !v)} style={{ background: "none", border: "none", color: editMode ? "#FF5A3C" : "#8A8577", fontSize: 12.5, fontWeight: 700, cursor: "pointer", marginLeft: 10 }}>{editMode ? "Done" : "Manage"}</button>
+        </div>
+      </div>
+
+      <main style={{ maxWidth: 720, margin: "0 auto", padding: "0 20px 60px" }}>
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#8A8577" }}>Loading deals...</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "60px 20px", color: "#8A8577", background: "#EDE8E0", borderRadius: 16 }}>
+            {products && products.length === 0 ? "No deals posted yet. Tap Add to flag your first one." : "Nothing matches that search right now."}
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
+            {filtered.map(p => <ProductCard key={p.id} product={p} onDelete={remove} editMode={editMode} />)}
+          </div>
+        )}
+      </main>
+
+      {showAdd && <AddProductModal onClose={() => setShowAdd(false)} onAdd={add} />}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
