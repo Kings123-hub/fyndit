@@ -11,6 +11,10 @@
 <meta name="theme-color" content="#06255B" />
 <link rel="icon" type="image/png" href="/icon-192.png" />
 <link rel="apple-touch-icon" href="/icon-192.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Fyndit" />
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #FAF6EF; }
@@ -104,7 +108,24 @@
     const CATEGORIES = ["All", "Gadgets", "Fashion", "Home", "Beauty"];
 
     const AUTH_URL = `${SUPABASE_URL}/auth/v1/token?grant_type=password`;
+    const IMAGE_BUCKET = "product-images";
     let authToken = null;
+
+    async function uploadImage(file) {
+      const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "");
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`;
+      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${IMAGE_BUCKET}/${path}`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: authToken ? `Bearer ${authToken}` : `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": file.type || "application/octet-stream",
+        },
+        body: file,
+      });
+      if (!res.ok) throw new Error("upload failed");
+      return `${SUPABASE_URL}/storage/v1/object/public/${IMAGE_BUCKET}/${path}`;
+    }
 
     let state = {
       products: null,
@@ -184,6 +205,7 @@
       try {
         const res = await fetch(`${REST_URL}?id=eq.${id}`, { method: "DELETE", headers: getHeaders() });
         if (!res.ok) throw new Error("delete failed");
+        await loadProducts();
       } catch (e) {
         setState({ products: prev, error: "Couldn't remove that deal. Try again." });
       }
@@ -279,7 +301,11 @@
                 <input id="f-name" placeholder="e.g. Wireless Earbuds Pro" required />
               </div>
               <div class="field">
-                <label>Image URLs (comma-separated for multiple photos)</label>
+                <label>Upload photos from your device</label>
+                <input id="f-image-upload" type="file" accept="image/*" multiple />
+              </div>
+              <div class="field">
+                <label>Or paste image links (comma-separated)</label>
                 <input id="f-image" placeholder="https://i.postimg.cc/photo1.jpg, https://i.postimg.cc/photo2.jpg" />
               </div>
               <div class="field">
@@ -379,7 +405,7 @@
             </div>
             <div class="cat-row">
               <div class="cat-scroll">${catButtons}</div>
-              ${state.editMode ? `<button class="add-btn btn" id="openAdd" style="margin-left:8px;">+ Add</button><button class="manage-btn active" id="toggleManage" style="margin-left:8px;">Done</button>` : ""}
+              ${state.editMode ? `<button class="add-btn btn" id="openAdd" style="margin-left:8px;">+ Add</button><button class="manage-btn active" id="toggleManage" style="margin-left:8px;">Done</button><button class="manage-btn" id="logoutBtn" style="margin-left:8px;">Log out</button>` : ""}
             </div>
           </div>
 
@@ -429,6 +455,14 @@
 
       const toggleManage = document.getElementById("toggleManage");
       if (toggleManage) toggleManage.addEventListener("click", () => setState({ editMode: false }));
+
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          authToken = null;
+          setState({ isAdmin: false, editMode: false });
+        });
+      }
 
       const openAdd = document.getElementById("openAdd");
       if (openAdd) openAdd.addEventListener("click", () => setState({ showAdd: true }));
@@ -500,17 +534,37 @@
         addForm.addEventListener("submit", async (e) => {
           e.preventDefault();
           const name = document.getElementById("f-name").value.trim();
-          const image = document.getElementById("f-image").value.trim();
+          const pastedLinks = document.getElementById("f-image").value.trim();
           const category = document.getElementById("f-category").value;
           const price = document.getElementById("f-price").value.trim();
           const note = document.getElementById("f-note").value.trim();
           const link = document.getElementById("f-link").value.trim();
           const featured = document.getElementById("f-featured").checked;
+          const fileInput = document.getElementById("f-image-upload");
+          const files = Array.from((fileInput && fileInput.files) || []);
           if (!name || !price || !link) return;
           const submitBtn = document.getElementById("submitBtn");
           submitBtn.disabled = true;
+
+          const uploadedUrls = [];
+          if (files.length) {
+            submitBtn.textContent = `Uploading photo 1 of ${files.length}...`;
+            for (let i = 0; i < files.length; i++) {
+              submitBtn.textContent = `Uploading photo ${i + 1} of ${files.length}...`;
+              try {
+                const url = await uploadImage(files[i]);
+                uploadedUrls.push(url);
+              } catch (err) {
+                setState({ error: "One of your photos didn't upload. The rest will still be saved." });
+              }
+            }
+          }
           submitBtn.textContent = "Posting...";
-          await addProduct({ name, images: image, category, price, note, link, featured, spotted: "Just now" });
+
+          const pastedList = pastedLinks ? pastedLinks.split(",").map(s => s.trim()).filter(Boolean) : [];
+          const allImages = [...uploadedUrls, ...pastedList].join(", ");
+
+          await addProduct({ name, images: allImages, category, price, note, link, featured, spotted: "Just now" });
           setState({ showAdd: false });
         });
       }
