@@ -118,6 +118,7 @@
       showPwModal: false,
       pwError: false,
       loggingIn: false,
+      failedAttempts: 0,
       galleryProductId: null,
     };
 
@@ -312,16 +313,21 @@
 
     function renderPasswordModal() {
       if (!state.showPwModal) return "";
+      const lockedOut = state.failedAttempts >= 5;
       return `
         <div class="modal-overlay" id="pwOverlay">
           <div class="pw-modal" id="pwModalBox">
             <h3>Admin login</h3>
-            <form id="pwForm">
-              <input type="email" id="emailInput" placeholder="Email" autocomplete="off" value="miracleobodo34@gmail.com" />
-              <input type="password" id="pwInput" placeholder="Password" autocomplete="off" />
-              ${state.pwError ? `<div class="pw-err">Incorrect email or password. Try again.</div>` : ""}
-              <button type="submit" class="pw-btn" ${state.loggingIn ? "disabled" : ""}>${state.loggingIn ? "Logging in..." : "Log in"}</button>
-            </form>
+            ${lockedOut ? `
+              <div class="pw-err">Too many failed attempts. Please close this and try again later.</div>
+            ` : `
+              <form id="pwForm">
+                <input type="email" id="emailInput" placeholder="Email" autocomplete="off" />
+                <input type="password" id="pwInput" placeholder="Password" autocomplete="off" />
+                ${state.pwError ? `<div class="pw-err">Incorrect email or password. Try again.</div>` : ""}
+                <button type="submit" class="pw-btn" ${state.loggingIn ? "disabled" : ""}>${state.loggingIn ? "Logging in..." : "Log in"}</button>
+              </form>
+            `}
           </div>
         </div>
       `;
@@ -431,14 +437,18 @@
       if (pwForm) {
         pwForm.addEventListener("submit", async (e) => {
           e.preventDefault();
+          if (state.failedAttempts >= 5) {
+            setState({ pwError: true, lockedOut: true });
+            return;
+          }
           const email = document.getElementById("emailInput").value.trim();
           const password = document.getElementById("pwInput").value;
           setState({ loggingIn: true, pwError: false });
           try {
             await loginAdmin(email, password);
-            setState({ isAdmin: true, showPwModal: false, pwError: false, editMode: true, loggingIn: false });
+            setState({ isAdmin: true, showPwModal: false, pwError: false, editMode: true, loggingIn: false, failedAttempts: 0 });
           } catch (e) {
-            setState({ pwError: true, loggingIn: false });
+            setState({ pwError: true, loggingIn: false, failedAttempts: state.failedAttempts + 1 });
           }
         });
       }
