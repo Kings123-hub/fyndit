@@ -17,6 +17,7 @@
 <meta name="apple-mobile-web-app-title" content="Fyndit" />
 <style>
   * { box-sizing: border-box; }
+  img { max-width: 100%; display: block; }
   body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #FAF6EF; }
   ::selection { background: #FE6402; color: #06255B; }
   input:focus, select:focus { border-color: #FE6402 !important; }
@@ -24,10 +25,10 @@
   .header { background: linear-gradient(180deg, #FFFDF9 0%, #F5EEE0 100%); padding: 40px 20px 32px; position: relative; overflow: hidden; border-bottom: 1px solid #EDE3CE; }
   .glow { position: absolute; top: -80px; right: -80px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(254,100,2,0.14) 0%, transparent 70%); }
   .glow-2 { position: absolute; bottom: -60px; left: -60px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(0,147,214,0.10) 0%, transparent 70%); }
-  .pill { display: inline-flex; align-items: center; gap: 6px; background: #06255B; color: #FCC601; font-size: 11px; font-weight: 800; padding: 5px 10px; border-radius: 999px; text-transform: uppercase; margin-bottom: 18px; letter-spacing: 0.03em; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; background: #06255B; color: #FCC601; font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 999px; text-transform: uppercase; margin-bottom: 18px; letter-spacing: 0.03em; }
   h1.brand { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(32px, 7vw, 48px); color: #06255B; margin: 0 0 12px; }
-  .brand-logo { height: 92px; width: auto; margin: 0 0 14px; display: block; filter: drop-shadow(0 4px 14px rgba(6,37,91,0.12)); }
-  .sub { font-size: 15.5px; color: #5C6178; max-width: 460px; margin: 0; line-height: 1.5; }
+  .brand-logo { height: 104px; max-width: 100%; width: auto; margin: 0 0 14px; display: block; filter: drop-shadow(0 4px 14px rgba(6,37,91,0.12)); }
+  .sub { font-size: 16px; color: #5C6178; max-width: 460px; margin: 0; line-height: 1.5; font-weight: 400; }
   .controls { max-width: 720px; margin: 0 auto; padding: 24px 20px 0; }
   .search-row { display: flex; gap: 10px; margin-bottom: 16px; }
   .search-input { flex: 1; border: 1.5px solid #E3DDD0; border-radius: 12px; padding: 11px 14px; font-size: 14px; background: #FFFFFF; outline: none; }
@@ -123,7 +124,11 @@
         },
         body: file,
       });
-      if (!res.ok) throw new Error("upload failed");
+      if (!res.ok) {
+        let detail = "";
+        try { detail = (await res.json()).message || (await res.text()); } catch (e) {}
+        throw new Error(`Upload failed (${res.status}): ${detail || "unknown error"}`);
+      }
       return `${SUPABASE_URL}/storage/v1/object/public/${IMAGE_BUCKET}/${path}`;
     }
 
@@ -547,6 +552,7 @@
           submitBtn.disabled = true;
 
           const uploadedUrls = [];
+          const uploadErrors = [];
           if (files.length) {
             submitBtn.textContent = `Uploading photo 1 of ${files.length}...`;
             for (let i = 0; i < files.length; i++) {
@@ -555,7 +561,7 @@
                 const url = await uploadImage(files[i]);
                 uploadedUrls.push(url);
               } catch (err) {
-                setState({ error: "One of your photos didn't upload. The rest will still be saved." });
+                uploadErrors.push(err.message || "Unknown upload error");
               }
             }
           }
@@ -565,7 +571,11 @@
           const allImages = [...uploadedUrls, ...pastedList].join(", ");
 
           await addProduct({ name, images: allImages, category, price, note, link, featured, spotted: "Just now" });
-          setState({ showAdd: false });
+          if (uploadErrors.length) {
+            setState({ showAdd: false, error: `Photo upload problem: ${uploadErrors[0]}` });
+          } else {
+            setState({ showAdd: false });
+          }
         });
       }
     }
