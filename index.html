@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fyndit — Best Gadget, Fashion & Beauty Deals in Nigeria</title>
+<meta name="description" content="Fyndit is a hand-curated list of the best gadget, fashion, home, and beauty deals in Nigeria — spotted daily before they blow up." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#06255B" />
+<link rel="icon" type="image/png" href="/icon-192.png" />
+<link rel="apple-touch-icon" href="/icon-192.png" />
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #FAF6EF; }
+  ::selection { background: #FE6402; color: #06255B; }
+  input:focus, select:focus { border-color: #FE6402 !important; }
+  .btn { cursor: pointer; }
+  .hero-banner-wrap { background: #06255B; overflow: hidden; }
+  .hero-banner-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+  .hero-banner-track::-webkit-scrollbar { display: none; }
+  .hero-banner-slide { flex: 0 0 100%; scroll-snap-align: start; position: relative; overflow: hidden; aspect-ratio: 3 / 1; background: #EDE8E0; text-decoration: none; display: block; }
+  .hero-banner-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero-banner-dots { display: flex; gap: 5px; justify-content: center; padding: 8px 0; background: #06255B; }
+  .hero-banner-dot { width: 6px; height: 6px; border-radius: 999px; background: rgba(247,245,242,0.35); }
+  .hero-banner-placeholder { aspect-ratio: 3 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: repeating-linear-gradient(135deg, #0B2E6E, #0B2E6E 10px, #06255B 10px, #06255B 20px); border-bottom: 2px dashed #FE6402; text-align: center; padding: 0 20px; }
+  .hero-banner-placeholder .hb-title { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 18px; color: #FCC601; letter-spacing: 0.02em; margin: 0; }
+  .hero-banner-placeholder .hb-sub { font-size: 11.5px; color: rgba(247,245,242,0.7); margin: 0; }
+  .hero-add-btn { display: block; margin: 10px auto 0; background: #FE6402; color: #06255B; border: none; border-radius: 10px; padding: 9px 16px; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 12.5px; }
+  .hero-add-btn:disabled { background: #D8D2C6; color: #8A8577; }
+  .search-bar-wrap { background: #FFFDF9; padding: 14px 16px 10px; border-bottom: 1px solid #EDE3CE; }
+  .search-pill { display: flex; align-items: center; gap: 8px; background: #F2ECDC; border: 1.5px solid #06255B; border-radius: 999px; padding: 9px 8px 9px 16px; max-width: 720px; margin: 0 auto; }
+  .search-icon { font-size: 15px; opacity: 0.6; }
+  .search-pill-input { flex: 1; border: none; background: transparent; outline: none; font-size: 14.5px; color: #06255B; }
+  .search-pill-input::placeholder { color: #8A8577; }
+  .cat-scroll-wrap { background: #FFFDF9; padding: 0 16px 12px; border-bottom: 1px solid #EDE3CE; }
+  .cat-scroll { display: flex; gap: 8px; overflow-x: auto; max-width: 720px; margin: 0 auto; padding-top: 2px; }
+  .cat-scroll::-webkit-scrollbar { display: none; }
+  .cat-btn { border-radius: 999px; padding: 7px 15px; font-size: 12.5px; font-weight: 700; white-space: nowrap; font-family: 'Archivo', sans-serif; border: 1.5px solid #D8D2C6; background: transparent; color: #06255B; flex-shrink: 0; }
+  .cat-btn.active { background: #FE6402; border: none; color: #FFFFFF; }
+  .controls { max-width: 720px; margin: 0 auto; padding: 14px 20px 0; }
+  .admin-bar { display: flex; gap: 10px; margin-bottom: 14px; }
+  .add-btn { background: #06255B; color: #F7F5F2; border: none; border-radius: 12px; padding: 11px 16px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 13.5px; white-space: nowrap; }
+  .manage-btn { background: none; border: 1.5px solid #D8D2C6; color: #8A8577; font-size: 12.5px; font-weight: 700; border-radius: 12px; padding: 11px 16px; }
+  .manage-btn.active { color: #FE6402; border-color: #FE6402; }
+  main.grid-main { max-width: 720px; margin: 0 auto; padding: 0 10px 60px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .card { background: #FFFFFF; border-radius: 14px; overflow: hidden; position: relative; display: flex; flex-direction: column; border: 1px solid #E9E4D8; box-shadow: 0 1px 3px rgba(22,22,22,0.04); }
+  .card-img-wrap { position: relative; width: 100%; aspect-ratio: 4 / 5; background: #EDE8E0; }
+  .card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #C4BEB0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .card-tag-overlay { position: absolute; top: 8px; left: 8px; background: #06255B; color: #F7F5F2; font-size: 9.5px; font-weight: 700; padding: 4px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; z-index: 2; }
+  .card-img-count { position: absolute; bottom: 8px; right: 8px; background: rgba(6,37,91,0.85); color: #F7F5F2; font-size: 9.5px; font-weight: 700; padding: 4px 8px; border-radius: 999px; z-index: 2; }
+  .gallery-overlay { position: fixed; inset: 0; background: rgba(6,37,91,0.95); z-index: 60; display: flex; flex-direction: column; }
+  .gallery-close { align-self: flex-end; background: none; border: none; color: #F7F5F2; font-size: 24px; padding: 16px 20px; }
+  .gallery-scroll { flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+  .gallery-scroll::-webkit-scrollbar { display: none; }
+  .gallery-slide { flex: 0 0 100%; scroll-snap-align: center; display: flex; align-items: center; justify-content: center; padding: 0 16px; }
+  .gallery-slide img { max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 10px; }
+  .gallery-dots { display: flex; gap: 6px; justify-content: center; padding: 16px; }
+  .gallery-dot { width: 7px; height: 7px; border-radius: 999px; background: rgba(247,245,242,0.35); }
+  .card-body { padding: 6px 6px 8px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+  .card-name { font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 11.5px; color: #06255B; margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-note { font-size: 10px; color: #8A8577; margin: 0; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-price { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 14px; color: #06255B; margin-top: 1px; }
+  .card-cta { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 4px; background: #FE6402; color: #06255B; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 11px; text-decoration: none; padding: 6px 0; border-radius: 7px; width: 100%; }
+  .del-btn { position: absolute; top: 6px; right: 6px; background: rgba(22,22,22,0.85); color: #F7F5F2; border: none; border-radius: 7px; width: 24px; height: 24px; font-size: 11px; z-index: 3; }
+  .empty { text-align: center; padding: 60px 20px; color: #8A8577; background: #EDE8E0; border-radius: 16px; }
+  .err { background: #FFE8E0; border: 1px solid #FE6402; color: #7A2E1D; font-size: 13px; padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(22,22,22,0.72); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+  .modal { background: #F7F5F2; width: 100%; max-width: 520px; border-radius: 20px 20px 0 0; padding: 28px 24px 32px; max-height: 88vh; overflow-y: auto; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+  .modal-header h2 { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 22px; color: #06255B; margin: 0; }
+  .close-btn { background: none; border: none; font-size: 20px; color: #06255B; padding: 6px; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .field label { font-size: 12px; font-weight: 700; color: #5C6178; text-transform: uppercase; letter-spacing: 0.04em; }
+  .field input, .field select { border: 1.5px solid #E3DDD0; border-radius: 10px; padding: 12px 14px; font-size: 15px; color: #06255B; background: #FFFFFF; outline: none; font-family: 'Inter', sans-serif; }
+  .submit-btn { width: 100%; margin-top: 8px; background: #FE6402; color: #06255B; border: none; border-radius: 12px; padding: 14px 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 15px; }
+  .submit-btn:disabled { background: #D8D2C6; color: #8A8577; }
+  .checkbox-field { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #06255B; font-weight: 600; margin-bottom: 16px; }
+  .checkbox-field input { width: 17px; height: 17px; }
+  .footer { max-width: 720px; margin: 0 auto; padding: 20px 20px 40px; text-align: center; }
+  .footer-contact { display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 13px; }
+  .footer-contact a { color: #5C6178; text-decoration: none; font-weight: 600; }
+  .footer-contact .dot { color: #D8D2C6; }
+  .footer-admin { margin-top: 14px; color: #D8D2C6; font-size: 13px; display: inline-block; padding: 6px 14px; }
+  .pw-modal { background: #F7F5F2; width: 100%; max-width: 360px; border-radius: 20px; padding: 24px; }
+  .pw-modal h3 { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 17px; color: #06255B; margin: 0 0 14px; }
+  .pw-modal input { width: 100%; border: 1.5px solid #E3DDD0; border-radius: 10px; padding: 12px 14px; font-size: 15px; outline: none; margin-bottom: 10px; }
+  .pw-modal .pw-err { color: #FE6402; font-size: 12.5px; margin-bottom: 10px; }
+  .pw-modal .pw-btn { width: 100%; background: #06255B; color: #F7F5F2; border: none; border-radius: 10px; padding: 12px 0; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 14px; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    const SUPABASE_URL = "https://mrnssxulfkacrrgsixnf.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_F0VmiKD01luzB61meBYqSQ_y98ofr0I";
+    const TABLE = "products";
+    const REST_URL = `${SUPABASE_URL}/rest/v1/${TABLE}`;
+    const CATEGORIES = ["All", "Electronics", "Men", "Women", "Jewelry", "Bags", "Home", "Beauty"];
+
+    // 🔥 HOT SALES OF THE WEEK — HEAD BANNER 🔥
+    // These images now come from Supabase (table "hero_banners", storage bucket "hero-banners"),
+    // so you can upload them straight from the app instead of editing code. See setup steps
+    // provided alongside this file for the one-time Supabase table + bucket creation.
+    const HERO_TABLE = "hero_banners";
+    const HERO_REST_URL = `${SUPABASE_URL}/rest/v1/${HERO_TABLE}`;
+    const HERO_BUCKET = "hero-banners";
+
+    const AUTH_URL = `${SUPABASE_URL}/auth/v1/token?grant_type=password`;
+    let authToken = null;
+
+    let state = {
+      products: null,
+      loading: true,
+      error: null,
+      category: "All",
+      query: "",
+      heroBanners: null,
+      heroUploading: false,
+      heroError: null,
+      showAdd: false,
+      editMode: false,
+      isAdmin: false,
+      showPwModal: false,
+      pwError: false,
+      loggingIn: false,
+      failedAttempts: 0,
+      galleryProductId: null,
+    };
+
+    function setState(patch) {
+      state = { ...state, ...patch };
+      render();
+    }
+
+    function getHeaders() {
+      const h = {
+        apikey: SUPABASE_KEY,
+        "Content-Type": "application/json",
+      };
+      h.Authorization = authToken ? `Bearer ${authToken}` : `Bearer ${SUPABASE_KEY}`;
+      return h;
+    }
+
+    async function loginAdmin(email, password) {
+      const res = await fetch(AUTH_URL, {
+        method: "POST",
+        headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) throw new Error("Login failed");
+      const data = await res.json();
+      authToken = data.access_token;
+      return true;
+    }
+
+    async function fetchProducts() {
+      const res = await fetch(`${REST_URL}?select=*&order=id.desc`, { headers: getHeaders() });
+      if (!res.ok) throw new Error("Failed to load");
+      return res.json();
+    }
+
+    async function loadProducts() {
+      setState({ loading: true });
+      try {
+        const data = await fetchProducts();
+        setState({ products: data, loading: false, error: null });
+      } catch (e) {
+        setState({ products: [], loading: false, error: "Couldn't load deals right now. Check your connection and try again." });
+      }
+    }
+
+    async function loadHeroBanners() {
+      try {
+        const res = await fetch(`${HERO_REST_URL}?select=*&order=created_at.desc`, { headers: getHeaders() });
+        if (!res.ok) throw new Error("Failed to load banners");
+        const data = await res.json();
+        setState({ heroBanners: data });
+      } catch (e) {
+        setState({ heroBanners: [] });
+      }
+    }
+
+    async function uploadHeroBanner(file) {
+      setState({ heroUploading: true, heroError: null });
+      try {
+        const path = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "")}`;
+        const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/${HERO_BUCKET}/${path}`, {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: authToken ? `Bearer ${authToken}` : `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": file.type || "image/jpeg",
+          },
+          body: file,
+        });
+        if (!uploadRes.ok) throw new Error("Upload failed");
+        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${HERO_BUCKET}/${path}`;
+        const insertRes = await fetch(HERO_REST_URL, {
+          method: "POST",
+          headers: { ...getHeaders(), Prefer: "return=representation" },
+          body: JSON.stringify({ image_url: publicUrl, storage_path: path, link: "" }),
+        });
+        if (!insertRes.ok) throw new Error("Save failed");
+        await loadHeroBanners();
+        setState({ heroUploading: false });
+      } catch (e) {
+        setState({ heroUploading: false, heroError: "Couldn't upload that image. Try again." });
+      }
+    }
+
+    async function deleteHeroBanner(id) {
+      const prev = state.heroBanners;
+      const banner = (prev || []).find(h => String(h.id) === String(id));
+      setState({ heroBanners: (prev || []).filter(h => String(h.id) !== String(id)) });
+      try {
+        const res = await fetch(`${HERO_REST_URL}?id=eq.${id}`, { method: "DELETE", headers: getHeaders() });
+        if (!res.ok) throw new Error("delete failed");
+        if (banner && banner.storage_path) {
+          await fetch(`${SUPABASE_URL}/storage/v1/object/${HERO_BUCKET}`, {
+            method: "DELETE",
+            headers: getHeaders(),
+            body: JSON.stringify({ prefixes: [banner.storage_path] }),
+          });
+        }
+      } catch (e) {
+        setState({ heroBanners: prev, heroError: "Couldn't remove that banner. Try again." });
+      }
+    }
+
+    async function addProduct(product) {
+      try {
+        const res = await fetch(REST_URL, {
+          method: "POST",
+          headers: { ...getHeaders(), Prefer: "return=representation" },
+          body: JSON.stringify(product),
+        });
+        if (!res.ok) throw new Error("insert failed");
+        await loadProducts();
+      } catch (e) {
+        setState({ error: "Couldn't post that deal. Try again." });
+      }
+    }
+
+    async function deleteProduct(id) {
+      const prev = state.products;
+      setState({ products: prev.filter(p => p.id !== id) });
+      try {
+        const res = await fetch(`${REST_URL}?id=eq.${id}`, { method: "DELETE", headers: getHeaders() });
+        if (!res.ok) throw new Error("delete failed");
+      } catch (e) {
+        setState({ products: prev, error: "Couldn't remove that deal. Try again." });
+      }
+    }
+
+    function esc(str) {
+      const div = document.createElement("div");
+      div.textContent = str == null ? "" : str;
+      return div.innerHTML;
+    }
+
+    function renderGalleryModal() {
+      if (!state.galleryProductId) return "";
+      const product = (state.products || []).find(p => String(p.id) === String(state.galleryProductId));
+      if (!product) return "";
+      const imgs = getImageList(product);
+      const slides = imgs.map(url => `
+        <div class="gallery-slide"><img src="${esc(url)}" alt="${esc(product.name)}" /></div>
+      `).join("");
+      const dots = imgs.map(() => `<div class="gallery-dot"></div>`).join("");
+      return `
+        <div class="gallery-overlay" id="galleryOverlay">
+          <button class="gallery-close" id="galleryClose">✕</button>
+          <div class="gallery-scroll">${slides}</div>
+          <div class="gallery-dots">${dots}</div>
+        </div>
+      `;
+    }
+
+    function renderHeroBanner() {
+      const banners = state.heroBanners || [];
+      const showUpload = state.editMode;
+      const uploadControl = showUpload ? `
+        <input type="file" id="heroFileInput" accept="image/*" style="display:none" />
+        <button id="heroAddBtn" class="hero-add-btn" ${state.heroUploading ? "disabled" : ""}>
+          ${state.heroUploading ? "Uploading..." : "+ Add banner image"}
+        </button>
+      ` : "";
+
+      if (banners.length === 0) {
+        return `
+          <div class="hero-banner-wrap">
+            <div class="hero-banner-placeholder">
+              <p class="hb-title">🔥 HOT SALES OF THE WEEK</p>
+              <p class="hb-sub">${showUpload ? "Tap below to upload your first banner image" : "Add your edited banner image here"}</p>
+            </div>
+            ${uploadControl}
+            ${state.heroError ? `<div class="err" style="margin:10px 16px 0;">${esc(state.heroError)}</div>` : ""}
+          </div>
+        `;
+      }
+
+      const slides = banners.map(h => {
+        const tag = h.link ? "a" : "div";
+        const hrefAttr = h.link ? `href="${esc(h.link)}" target="_blank" rel="noopener noreferrer"` : "";
+        return `
+          <${tag} class="hero-banner-slide" ${hrefAttr}>
+            ${state.editMode ? `<button class="del-btn" data-hero-del="${h.id}">✕</button>` : ""}
+            <img src="${esc(h.image_url)}" alt="Hot sales of the week" loading="lazy" />
+          </${tag}>
+        `;
+      }).join("");
+      const dots = banners.length > 1
+        ? `<div class="hero-banner-dots">${banners.map(() => `<div class="hero-banner-dot"></div>`).join("")}</div>`
+        : "";
+      return `
+        <div class="hero-banner-wrap">
+          <div class="hero-banner-track" id="heroTrack">${slides}</div>
+          ${dots}
+          ${uploadControl}
+          ${state.heroError ? `<div class="err" style="margin:10px 16px 0;">${esc(state.heroError)}</div>` : ""}
+        </div>
+      `;
+    }
+
+    let heroTimer = null;
+    function startHeroAutoplay() {
+      if (heroTimer) clearInterval(heroTimer);
+      const track = document.getElementById("heroTrack");
+      const count = (state.heroBanners || []).length;
+      if (!track || count <= 1) return;
+      let idx = 0;
+      heroTimer = setInterval(() => {
+        idx = (idx + 1) % count;
+        track.scrollTo({ left: track.clientWidth * idx, behavior: "smooth" });
+      }, 4000);
+    }
+
+    function getImageList(p) {
+      const raw = p.images || p.image || "";
+      return raw.split(",").map(s => s.trim()).filter(Boolean);
+    }
+
+    function renderCard(p) {
+      const imgs = getImageList(p);
+      const imgHtml = imgs.length > 0
+        ? `<img src="${esc(imgs[0])}" alt="${esc(p.name)}" class="card-img" loading="lazy" onerror="this.parentElement.querySelector('.card-img-placeholder')?.remove();this.style.display='none';this.insertAdjacentHTML('afterend','<div class=&quot;card-img-placeholder&quot;>No photo</div>')" />`
+        : `<div class="card-img-placeholder">No photo</div>`;
+      const galleryAttr = imgs.length > 1 ? `data-gallery="${p.id}"` : "";
+      return `
+        <div class="card" data-id="${p.id}">
+          <div class="card-img-wrap" ${galleryAttr}>
+            <div class="card-tag-overlay">${esc(p.spotted)}</div>
+            ${imgs.length > 1 ? `<div class="card-img-count">${imgs.length} photos</div>` : ""}
+            ${state.editMode ? `<button class="del-btn" data-del="${p.id}">✕</button>` : ""}
+            ${imgHtml}
+          </div>
+          <div class="card-body">
+            <h3 class="card-name">${esc(p.name)}</h3>
+            ${p.note ? `<p class="card-note">${esc(p.note)}</p>` : ""}
+            <div class="card-price">${esc(p.price)}</div>
+            <a class="card-cta" href="${esc(p.link)}" target="_blank" rel="noopener noreferrer">Get deal →</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderModal() {
+      if (!state.showAdd) return "";
+      return `
+        <div class="modal-overlay" id="modalOverlay">
+          <div class="modal" id="modalBox">
+            <div class="modal-header">
+              <h2>Flag a new deal</h2>
+              <button class="close-btn" id="closeModal">✕</button>
+            </div>
+            <form id="addForm">
+              <div class="field">
+                <label>Product name</label>
+                <input id="f-name" placeholder="e.g. Wireless Earbuds Pro" required />
+              </div>
+              <div class="field">
+                <label>Image URLs (comma-separated for multiple photos)</label>
+                <input id="f-image" placeholder="https://i.postimg.cc/photo1.jpg, https://i.postimg.cc/photo2.jpg" />
+              </div>
+              <div class="field">
+                <label>Category</label>
+                <select id="f-category">
+                  ${CATEGORIES.filter(c => c !== "All").map(c => `<option value="${c}">${c}</option>`).join("")}
+                </select>
+              </div>
+              <div class="field">
+                <label>Price</label>
+                <input id="f-price" placeholder="e.g. ₦8,500" required />
+              </div>
+              <div class="field">
+                <label>Your note (make it searchable)</label>
+                <input id="f-note" placeholder="e.g. Best earbuds under ₦10k" />
+              </div>
+              <div class="field">
+                <label>Affiliate link</label>
+                <input id="f-link" type="url" placeholder="https://..." required />
+              </div>
+              <button type="submit" class="submit-btn" id="submitBtn">Post deal</button>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPasswordModal() {
+      if (!state.showPwModal) return "";
+      const lockedOut = state.failedAttempts >= 5;
+      return `
+        <div class="modal-overlay" id="pwOverlay">
+          <div class="pw-modal" id="pwModalBox">
+            <h3>Admin login</h3>
+            ${lockedOut ? `
+              <div class="pw-err">Too many failed attempts. Please close this and try again later.</div>
+            ` : `
+              <form id="pwForm">
+                <input type="email" id="emailInput" placeholder="Email" autocomplete="off" />
+                <input type="password" id="pwInput" placeholder="Password" autocomplete="off" />
+                ${state.pwError ? `<div class="pw-err">Incorrect email or password. Try again.</div>` : ""}
+                <button type="submit" class="pw-btn" ${state.loggingIn ? "disabled" : ""}>${state.loggingIn ? "Logging in..." : "Log in"}</button>
+              </form>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    function render() {
+      const filtered = (state.products || []).filter(p => {
+        const matchCat = state.category === "All" || p.category === state.category;
+        const q = state.query.toLowerCase();
+        const matchQuery = !q || p.name.toLowerCase().includes(q) || (p.note || "").toLowerCase().includes(q);
+        return matchCat && matchQuery;
+      });
+
+      const catButtons = CATEGORIES.map(c =>
+        `<button class="cat-btn ${state.category === c ? "active" : ""}" data-cat="${c}">${c}</button>`
+      ).join("");
+
+      let gridHtml;
+      if (state.loading) {
+        gridHtml = `<div style="text-align:center;padding:60px 0;color:#8A8577;">Loading deals...</div>`;
+      } else if (filtered.length === 0) {
+        gridHtml = `<div class="empty">${
+          state.products && state.products.length === 0
+            ? "No deals posted yet. Tap Add to flag your first one."
+            : "Nothing matches that search right now."
+        }</div>`;
+      } else {
+        gridHtml = `<div class="grid">${filtered.map(renderCard).join("")}</div>`;
+      }
+
+      document.getElementById("root").innerHTML = `
+        <div>
+          ${renderHeroBanner()}
+          <div class="search-bar-wrap">
+            <div class="search-pill">
+              <span class="search-icon">🔍</span>
+              <input class="search-pill-input" id="searchInput" placeholder="Search deals..." value="${esc(state.query)}" />
+            </div>
+          </div>
+
+          <div class="cat-scroll-wrap">
+            <div class="cat-scroll">${catButtons}</div>
+          </div>
+
+          <div class="controls">
+            ${state.error ? `<div class="err">${esc(state.error)}</div>` : ""}
+            ${state.editMode ? `<div class="admin-bar"><button class="add-btn btn" id="openAdd">+ Add</button><button class="manage-btn active" id="toggleManage">Done</button></div>` : ""}
+          </div>
+
+          <main class="grid-main">${gridHtml}</main>
+
+          <footer class="footer">
+            <div class="footer-contact">
+              <a href="https://wa.me/2347082795417" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+              <span class="dot">·</span>
+              <a href="mailto:miracleobodo34@gmail.com">Email</a>
+              <span class="dot">·</span>
+              <a href="https://instagram.com/Kings.graphic8" target="_blank" rel="noopener noreferrer">Instagram</a>
+            </div>
+            <div class="footer-admin" id="adminTrigger">·</div>
+          </footer>
+        </div>
+        ${renderModal()}
+        ${renderPasswordModal()}
+        ${renderGalleryModal()}
+      `;
+
+      attachEvents();
+    }
+
+    function attachEvents() {
+      const searchInput = document.getElementById("searchInput");
+      if (searchInput) {
+        searchInput.addEventListener("input", (e) => {
+          const pos = e.target.selectionStart;
+          state.query = e.target.value;
+          render();
+          const el = document.getElementById("searchInput");
+          if (el) { el.focus(); el.setSelectionRange(pos, pos); }
+        });
+      }
+
+      const adminTrigger = document.getElementById("adminTrigger");
+      if (adminTrigger) {
+        adminTrigger.addEventListener("click", () => {
+          if (state.isAdmin) {
+            setState({ editMode: true });
+          } else {
+            setState({ showPwModal: true, pwError: false });
+          }
+        });
+      }
+
+      const toggleManage = document.getElementById("toggleManage");
+      if (toggleManage) toggleManage.addEventListener("click", () => setState({ editMode: false }));
+
+      const openAdd = document.getElementById("openAdd");
+      if (openAdd) openAdd.addEventListener("click", () => setState({ showAdd: true }));
+
+      const pwForm = document.getElementById("pwForm");
+      if (pwForm) {
+        pwForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (state.failedAttempts >= 5) {
+            setState({ pwError: true, lockedOut: true });
+            return;
+          }
+          const email = document.getElementById("emailInput").value.trim();
+          const password = document.getElementById("pwInput").value;
+          setState({ loggingIn: true, pwError: false });
+          try {
+            await loginAdmin(email, password);
+            setState({ isAdmin: true, showPwModal: false, pwError: false, editMode: true, loggingIn: false, failedAttempts: 0 });
+          } catch (e) {
+            setState({ pwError: true, loggingIn: false, failedAttempts: state.failedAttempts + 1 });
+          }
+        });
+      }
+
+      const pwOverlay = document.getElementById("pwOverlay");
+      if (pwOverlay) {
+        pwOverlay.addEventListener("click", (e) => {
+          if (e.target.id === "pwOverlay") setState({ showPwModal: false, pwError: false });
+        });
+      }
+
+      document.querySelectorAll("[data-cat]").forEach(btn => {
+        btn.addEventListener("click", () => setState({ category: btn.getAttribute("data-cat") }));
+      });
+
+      document.querySelectorAll("[data-del]").forEach(btn => {
+        btn.addEventListener("click", () => deleteProduct(btn.getAttribute("data-del")));
+      });
+
+      document.querySelectorAll("[data-hero-del]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          deleteHeroBanner(btn.getAttribute("data-hero-del"));
+        });
+      });
+
+      const heroAddBtn = document.getElementById("heroAddBtn");
+      const heroFileInput = document.getElementById("heroFileInput");
+      if (heroAddBtn && heroFileInput) {
+        heroAddBtn.addEventListener("click", () => heroFileInput.click());
+        heroFileInput.addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          if (file) uploadHeroBanner(file);
+        });
+      }
+
+      document.querySelectorAll("[data-gallery]").forEach(el => {
+        el.addEventListener("click", (e) => {
+          if (e.target.closest(".del-btn")) return;
+          setState({ galleryProductId: el.getAttribute("data-gallery") });
+        });
+      });
+
+      const galleryClose = document.getElementById("galleryClose");
+      if (galleryClose) galleryClose.addEventListener("click", () => setState({ galleryProductId: null }));
+
+      const galleryOverlay = document.getElementById("galleryOverlay");
+      if (galleryOverlay) {
+        galleryOverlay.addEventListener("click", (e) => {
+          if (e.target.id === "galleryOverlay") setState({ galleryProductId: null });
+        });
+      }
+
+      const closeModal = document.getElementById("closeModal");
+      if (closeModal) closeModal.addEventListener("click", () => setState({ showAdd: false }));
+
+      const overlay = document.getElementById("modalOverlay");
+      if (overlay) {
+        overlay.addEventListener("click", (e) => {
+          if (e.target.id === "modalOverlay") setState({ showAdd: false });
+        });
+      }
+
+      const addForm = document.getElementById("addForm");
+      if (addForm) {
+        addForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const name = document.getElementById("f-name").value.trim();
+          const image = document.getElementById("f-image").value.trim();
+          const category = document.getElementById("f-category").value;
+          const price = document.getElementById("f-price").value.trim();
+          const note = document.getElementById("f-note").value.trim();
+          const link = document.getElementById("f-link").value.trim();
+          if (!name || !price || !link) return;
+          const submitBtn = document.getElementById("submitBtn");
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Posting...";
+          await addProduct({ name, images: image, category, price, note, link, spotted: "Just now" });
+          setState({ showAdd: false });
+        });
+      }
+
+      startHeroAutoplay();
+    }
+
+    loadProducts();
+    loadHeroBanners();
+  </script>
+</body>
+</html>
