@@ -74,6 +74,11 @@ export default async function handler(req, res) {
     ? `<div class="g-dots">${images.map(() => `<div class="g-dot"></div>`).join("")}</div>`
     : "";
 
+  const descLines = (product.description || "").split("\n").map(s => s.trim()).filter(Boolean);
+  const descriptionList = descLines.length > 0
+    ? `<div class="desc-title">Description</div><ul class="desc-list">${descLines.map(line => `<li>${esc(line)}</li>`).join("")}</ul>`
+    : "";
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,6 +110,11 @@ export default async function handler(req, res) {
     .price { font-size: 26px; font-weight: 900; color: #FE6402; }
     .original-price { font-size: 15px; color: #8A8577; text-decoration: line-through; }
     .discount-badge { display: inline-block; background: #06255B; color: #fff; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 6px; margin-bottom: 14px; }
+    .badges-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 16px; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; background: #E8F5E9; color: #1B6B2E; font-size: 12.5px; font-weight: 700; padding: 5px 10px; border-radius: 999px; }
+    .desc-title { font-size: 14px; font-weight: 800; margin: 4px 0 8px; }
+    .desc-list { margin: 0 0 22px; padding-left: 18px; }
+    .desc-list li { font-size: 14px; color: #635E52; line-height: 1.6; margin-bottom: 4px; }
     .note { color: #635E52; font-size: 14.5px; line-height: 1.5; margin: 10px 0 22px; }
     a.cta { display: block; text-align: center; background: #FE6402; color: #06255B; font-weight: 900; font-size: 17px; text-decoration: none; padding: 16px; border-radius: 12px; box-shadow: 0 4px 14px rgba(254,100,2,0.35); }
     a.back { display: block; text-align: center; margin-top: 18px; color: #8A8577; font-size: 13px; text-decoration: none; }
@@ -122,7 +132,12 @@ export default async function handler(req, res) {
       ${product.original_price ? `<span class="original-price">${esc(product.original_price)}</span>` : ""}
     </div>
     ${discountPercent ? `<div class="discount-badge">${discountPercent}% OFF</div>` : ""}
+    <div class="badges-row">
+      ${product.free_shipping ? `<span class="badge">✓ Free shipping</span>` : ""}
+      ${product.delivery_time ? `<span class="badge">🚚 Arrives in ${esc(product.delivery_time)}</span>` : ""}
+    </div>
     ${product.note ? `<div class="note">${esc(product.note)}</div>` : ""}
+    ${descriptionList}
     <a class="cta" href="${esc(product.link)}" target="_blank" rel="noopener noreferrer">View this deal &rarr;</a>
     <a class="back" href="/">&larr; More deals on Fyndit</a>
   </div>

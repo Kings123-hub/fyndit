@@ -431,6 +431,18 @@
                 <input id="f-note" placeholder="e.g. Best earbuds under ₦10k" />
               </div>
               <div class="field">
+                <label>Description points (one per line)</label>
+                <textarea id="f-description" rows="4" placeholder="Soft, breathable fabric&#10;True to size fit&#10;Machine washable"></textarea>
+              </div>
+              <label class="checkbox-field">
+                <input type="checkbox" id="f-free-shipping" />
+                <span>Free shipping</span>
+              </label>
+              <div class="field">
+                <label>Delivery time (optional)</label>
+                <input id="f-delivery-time" placeholder="e.g. 5 days" />
+              </div>
+              <div class="field">
                 <label>Affiliate link</label>
                 <input id="f-link" type="url" placeholder="https://..." required />
               </div>
@@ -671,6 +683,9 @@
           const category = document.getElementById("f-category").value;
           const price = document.getElementById("f-price").value.trim();
           const originalPrice = document.getElementById("f-original-price").value.trim();
+          const description = document.getElementById("f-description").value.trim();
+          const freeShipping = document.getElementById("f-free-shipping").checked;
+          const deliveryTime = document.getElementById("f-delivery-time").value.trim();
           const note = document.getElementById("f-note").value.trim();
           const link = document.getElementById("f-link").value.trim();
           const statusEl = document.getElementById("f-image-status");
@@ -685,7 +700,7 @@
           const submitBtn = document.getElementById("submitBtn");
           submitBtn.disabled = true;
           submitBtn.textContent = "Posting...";
-          await addProduct({ name, images: image, category, price, original_price: originalPrice, note, link, spotted: "Just now" });
+          await addProduct({ name, images: image, category, price, original_price: originalPrice, note, description, free_shipping: freeShipping, delivery_time: deliveryTime, link, spotted: "Just now" });
           setState({ showAdd: false });
         });
       }
