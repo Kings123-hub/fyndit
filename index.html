@@ -423,6 +423,10 @@
                 <input id="f-price" placeholder="e.g. ₦8,500" required />
               </div>
               <div class="field">
+                <label>Original price (optional, shows a discount badge)</label>
+                <input id="f-original-price" placeholder="e.g. ₦15,000" />
+              </div>
+              <div class="field">
                 <label>Your note (make it searchable)</label>
                 <input id="f-note" placeholder="e.g. Best earbuds under ₦10k" />
               </div>
@@ -666,6 +670,7 @@
           const image = document.getElementById("f-image").value.trim();
           const category = document.getElementById("f-category").value;
           const price = document.getElementById("f-price").value.trim();
+          const originalPrice = document.getElementById("f-original-price").value.trim();
           const note = document.getElementById("f-note").value.trim();
           const link = document.getElementById("f-link").value.trim();
           const statusEl = document.getElementById("f-image-status");
@@ -680,7 +685,7 @@
           const submitBtn = document.getElementById("submitBtn");
           submitBtn.disabled = true;
           submitBtn.textContent = "Posting...";
-          await addProduct({ name, images: image, category, price, note, link, spotted: "Just now" });
+          await addProduct({ name, images: image, category, price, original_price: originalPrice, note, link, spotted: "Just now" });
           setState({ showAdd: false });
         });
       }
