@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Fyndit — Best Gadget, Fashion & Beauty Deals in Nigeria</title>
-<meta name="description" content="Fyndit is a hand-curated list of the best gadget, fashion, home, and beauty deals in Nigeria — spotted daily before they blow up." />
+<title>Fyndit — Nigeria's Marketplace for Everything: Gadgets, Fashion, Art, Books & More</title>
+<meta name="description" content="Fyndit is Nigeria's growing marketplace — curated deals, artwork, books, fashion and more, sold directly by verified sellers and Fyndit itself." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="manifest" href="/manifest.json" />
@@ -39,6 +39,8 @@
   .cat-scroll::-webkit-scrollbar { display: none; }
   .cat-btn { border-radius: 999px; padding: 7px 15px; font-size: 12.5px; font-weight: 700; white-space: nowrap; font-family: 'Archivo', sans-serif; border: 1.5px solid #D8D2C6; background: transparent; color: #06255B; flex-shrink: 0; }
   .cat-btn.active { background: #FE6402; border: none; color: #FFFFFF; }
+  .sell-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: 720px; margin: 0 auto; padding: 10px 20px; background: #06255B; }
+  .sell-bar span { color: #F7F5F2; font-size: 12.5px; font-weight: 600; }
   .controls { max-width: 720px; margin: 0 auto; padding: 14px 20px 0; }
   .admin-bar { display: flex; gap: 10px; margin-bottom: 14px; }
   .add-btn { background: #06255B; color: #F7F5F2; border: none; border-radius: 12px; padding: 11px 16px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 13.5px; white-space: nowrap; }
@@ -63,8 +65,24 @@
   .card-body { padding: 6px 6px 8px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
   .card-name { font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 11.5px; color: #06255B; margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .card-note { font-size: 10px; color: #8A8577; margin: 0; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-seller { font-size: 9.5px; color: #FE6402; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: 0.02em; }
   .card-price { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 14px; color: #06255B; margin-top: 1px; }
-  .card-cta { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 4px; background: #FE6402; color: #06255B; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 11px; text-decoration: none; padding: 6px 0; border-radius: 7px; width: 100%; }
+  .card-cta { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 4px; background: #FE6402; color: #06255B; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 11px; text-decoration: none; padding: 6px 0; border-radius: 7px; width: 100%; border: none; }
+  .payment-modal .p-price { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 22px; color: #FE6402; margin: 4px 0 14px; }
+  .payment-modal .p-info { background: #F2ECDC; border-radius: 10px; padding: 12px 14px; font-size: 13.5px; color: #06255B; line-height: 1.6; margin-bottom: 16px; white-space: pre-wrap; }
+  .payment-modal .p-wa { display: block; text-align: center; background: #1E9E4B; color: #fff; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 14.5px; text-decoration: none; padding: 13px 0; border-radius: 10px; }
+  .sell-btn { background: #FCC601; color: #06255B; border: none; border-radius: 999px; padding: 8px 16px; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 12px; white-space: nowrap; }
+  .app-card { background: #FFFFFF; border: 1px solid #E9E4D8; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+  .app-card h4 { margin: 0 0 4px; font-family: 'Archivo', sans-serif; font-size: 14px; color: #06255B; }
+  .app-card p { margin: 2px 0; font-size: 12.5px; color: #635E52; }
+  .app-status { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; margin-top: 6px; }
+  .app-status.pending { background: #FFF3D6; color: #9A6B00; }
+  .app-status.approved { background: #E8F5E9; color: #1B6B2E; }
+  .app-status.rejected { background: #FFE8E0; color: #7A2E1D; }
+  .app-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .app-actions button { flex: 1; border-radius: 8px; padding: 8px 0; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 12.5px; border: none; }
+  .app-approve { background: #06255B; color: #fff; }
+  .app-reject { background: #EDE8E0; color: #7A2E1D; }
   .del-btn { position: absolute; top: 6px; right: 6px; background: rgba(22,22,22,0.85); color: #F7F5F2; border: none; border-radius: 7px; width: 24px; height: 24px; font-size: 11px; z-index: 3; }
   .empty { text-align: center; padding: 60px 20px; color: #8A8577; background: #EDE8E0; border-radius: 16px; }
   .err { background: #FFE8E0; border: 1px solid #FE6402; color: #7A2E1D; font-size: 13px; padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; }
@@ -100,7 +118,7 @@
     const SUPABASE_KEY = "sb_publishable_F0VmiKD01luzB61meBYqSQ_y98ofr0I";
     const TABLE = "products";
     const REST_URL = `${SUPABASE_URL}/rest/v1/${TABLE}`;
-    const CATEGORIES = ["All", "Electronics", "Men", "Women", "Jewelry", "Bags", "Home", "Beauty"];
+    const CATEGORIES = ["All", "Electronics", "Men", "Women", "Jewelry", "Bags", "Home", "Beauty", "Art & Paintings", "Books", "Handmade", "Other"];
 
     // 🔥 HOT SALES OF THE WEEK — HEAD BANNER 🔥
     // These images now come from Supabase (table "hero_banners", storage bucket "hero-banners"),
@@ -110,6 +128,10 @@
     const HERO_REST_URL = `${SUPABASE_URL}/rest/v1/${HERO_TABLE}`;
     const HERO_BUCKET = "hero-banners";
     const PRODUCT_BUCKET = "product-images";
+
+    const APPLICATIONS_TABLE = "seller_applications";
+    const APPLICATIONS_REST_URL = `${SUPABASE_URL}/rest/v1/${APPLICATIONS_TABLE}`;
+    const ADMIN_WHATSAPP = "2347082795417";
 
     const AUTH_URL = `${SUPABASE_URL}/auth/v1/token?grant_type=password`;
     let authToken = null;
@@ -131,6 +153,13 @@
       loggingIn: false,
       failedAttempts: 0,
       galleryProductId: null,
+      showSellForm: false,
+      sellSubmitting: false,
+      sellSuccess: false,
+      sellError: null,
+      sellerApps: null,
+      showApplications: false,
+      paymentProductId: null,
     };
 
     function setState(patch) {
@@ -261,10 +290,15 @@
           headers: { ...getHeaders(), Prefer: "return=representation" },
           body: JSON.stringify(product),
         });
-        if (!res.ok) throw new Error("insert failed");
+        if (!res.ok) {
+          const bodyText = await res.text().catch(() => "");
+          throw new Error(bodyText || "insert failed");
+        }
         await loadProducts();
+        return true;
       } catch (e) {
-        setState({ error: "Couldn't post that deal. Try again." });
+        setState({ error: "Couldn't post that deal — " + (e.message || "please check the fields and try again.") });
+        return false;
       }
     }
 
@@ -276,6 +310,47 @@
         if (!res.ok) throw new Error("delete failed");
       } catch (e) {
         setState({ products: prev, error: "Couldn't remove that deal. Try again." });
+      }
+    }
+
+    async function submitApplication(app) {
+      setState({ sellSubmitting: true, sellError: null });
+      try {
+        const res = await fetch(APPLICATIONS_REST_URL, {
+          method: "POST",
+          headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json", Authorization: `Bearer ${SUPABASE_KEY}` },
+          body: JSON.stringify({ ...app, status: "pending" }),
+        });
+        if (!res.ok) throw new Error("apply failed");
+        setState({ sellSubmitting: false, sellSuccess: true });
+      } catch (e) {
+        setState({ sellSubmitting: false, sellError: "Couldn't send your application. Please try again or reach us on WhatsApp." });
+      }
+    }
+
+    async function loadApplications() {
+      try {
+        const res = await fetch(`${APPLICATIONS_REST_URL}?select=*&order=created_at.desc`, { headers: getHeaders() });
+        if (!res.ok) throw new Error("failed");
+        const data = await res.json();
+        setState({ sellerApps: data });
+      } catch (e) {
+        setState({ sellerApps: [] });
+      }
+    }
+
+    async function updateApplicationStatus(id, status) {
+      const prev = state.sellerApps;
+      setState({ sellerApps: (prev || []).map(a => String(a.id) === String(id) ? { ...a, status } : a) });
+      try {
+        const res = await fetch(`${APPLICATIONS_REST_URL}?id=eq.${id}`, {
+          method: "PATCH",
+          headers: getHeaders(),
+          body: JSON.stringify({ status }),
+        });
+        if (!res.ok) throw new Error("update failed");
+      } catch (e) {
+        setState({ sellerApps: prev });
       }
     }
 
@@ -383,9 +458,12 @@
           </div>
           <div class="card-body">
             <h3 class="card-name">${esc(p.name)}</h3>
+            ${p.seller_name ? `<p class="card-seller">Sold by ${esc(p.seller_name)}</p>` : ""}
             ${p.note ? `<p class="card-note">${esc(p.note)}</p>` : ""}
             <div class="card-price">${esc(p.price)}</div>
-            <a class="card-cta" href="${esc(p.link)}" target="_blank" rel="noopener noreferrer">Get deal →</a>
+            ${p.is_own_product
+              ? `<button class="card-cta btn" data-payment="${p.id}">Get deal →</button>`
+              : `<a class="card-cta" href="${esc(p.link)}" target="_blank" rel="noopener noreferrer">Get deal →</a>`}
           </div>
         </div>
       `;
@@ -397,14 +475,27 @@
         <div class="modal-overlay" id="modalOverlay">
           <div class="modal" id="modalBox">
             <div class="modal-header">
-              <h2>Flag a new deal</h2>
+              <h2>List a product</h2>
               <button class="close-btn" id="closeModal">✕</button>
             </div>
+            ${state.error ? `<div class="err" style="margin:0 0 12px;">${esc(state.error)}</div>` : ""}
             <form id="addForm">
               <div class="field">
                 <label>Product name</label>
                 <input id="f-name" placeholder="e.g. Wireless Earbuds Pro" required />
               </div>
+              <div class="field">
+                <label>Sold by (leave blank if it's Fyndit's own)</label>
+                <input id="f-seller-name" placeholder="e.g. Chidi's Art Studio" />
+              </div>
+              <div class="field">
+                <label>Seller WhatsApp (optional — used for buyer contact)</label>
+                <input id="f-seller-contact" placeholder="e.g. 08012345678" />
+              </div>
+              <label class="checkbox-field">
+                <input type="checkbox" id="f-own-product" />
+                <span>This is my own product — buyer pays me directly (no external link)</span>
+              </label>
               <div class="field">
                 <label>Product photo</label>
                 <input id="f-image-file" type="file" accept="image/*" multiple />
@@ -443,11 +534,129 @@
                 <input id="f-delivery-time" placeholder="e.g. 5 days" />
               </div>
               <div class="field">
-                <label>Affiliate link</label>
-                <input id="f-link" type="url" placeholder="https://..." required />
+                <label>Affiliate / product link (leave blank for own products)</label>
+                <input id="f-link" type="url" placeholder="https://..." />
+              </div>
+              <div class="field">
+                <label>Payment info for buyer (bank details — own products only)</label>
+                <textarea id="f-payment-info" rows="3" placeholder="e.g. GTBank, 0123456789, Fyndit Stores"></textarea>
               </div>
               <button type="submit" class="submit-btn" id="submitBtn">Post deal</button>
             </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSellForm() {
+      if (!state.showSellForm) return "";
+      if (state.sellSuccess) {
+        return `
+          <div class="modal-overlay" id="sellOverlay">
+            <div class="modal" id="sellModalBox">
+              <div class="modal-header">
+                <h2>Application sent!</h2>
+                <button class="close-btn" id="closeSellForm">✕</button>
+              </div>
+              <p style="font-size:14px; color:#635E52; line-height:1.6;">Thanks — we'll review your application and reach out on WhatsApp within 24–48 hours to get your items listed.</p>
+            </div>
+          </div>
+        `;
+      }
+      return `
+        <div class="modal-overlay" id="sellOverlay">
+          <div class="modal" id="sellModalBox">
+            <div class="modal-header">
+              <h2>Sell with us</h2>
+              <button class="close-btn" id="closeSellForm">✕</button>
+            </div>
+            <p style="font-size:13px; color:#635E52; margin:-10px 0 18px;">Tell us what you'd like to sell. We review every application and reach out on WhatsApp before your items go live.</p>
+            ${state.sellError ? `<div class="err">${esc(state.sellError)}</div>` : ""}
+            <form id="sellForm">
+              <div class="field">
+                <label>Full name</label>
+                <input id="s-name" required />
+              </div>
+              <div class="field">
+                <label>WhatsApp number</label>
+                <input id="s-whatsapp" placeholder="e.g. 08012345678" required />
+              </div>
+              <div class="field">
+                <label>Email (optional)</label>
+                <input id="s-email" type="email" />
+              </div>
+              <div class="field">
+                <label>What do you want to sell?</label>
+                <select id="s-category">
+                  ${CATEGORIES.filter(c => c !== "All").map(c => `<option value="${c}">${c}</option>`).join("")}
+                </select>
+              </div>
+              <div class="field">
+                <label>Tell us about your product(s)</label>
+                <textarea id="s-desc" rows="4" placeholder="e.g. Original oil paintings, 5 pieces available, prices ₦15,000–₦40,000" required></textarea>
+              </div>
+              <div class="field">
+                <label>Link to photos / portfolio (optional)</label>
+                <input id="s-link" type="url" placeholder="Instagram, Google Drive, etc." />
+              </div>
+              <button type="submit" class="submit-btn" id="sellSubmitBtn" ${state.sellSubmitting ? "disabled" : ""}>${state.sellSubmitting ? "Sending..." : "Send application"}</button>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderApplicationsPanel() {
+      if (!state.showApplications) return "";
+      const apps = state.sellerApps || [];
+      const rows = apps.length === 0
+        ? `<p style="text-align:center; color:#8A8577; padding:30px 0;">No applications yet.</p>`
+        : apps.map(a => `
+          <div class="app-card">
+            <h4>${esc(a.full_name)} — ${esc(a.category || "")}</h4>
+            <p>WhatsApp: ${esc(a.whatsapp)}</p>
+            ${a.email ? `<p>Email: ${esc(a.email)}</p>` : ""}
+            <p>${esc(a.product_desc || "")}</p>
+            ${a.sample_link ? `<p><a href="${esc(a.sample_link)}" target="_blank" rel="noopener noreferrer">View samples ↗</a></p>` : ""}
+            <span class="app-status ${esc(a.status)}">${esc(a.status)}</span>
+            ${a.status === "pending" ? `
+              <div class="app-actions">
+                <button class="app-approve" data-app-approve="${a.id}">Approve</button>
+                <button class="app-reject" data-app-reject="${a.id}">Reject</button>
+              </div>
+            ` : ""}
+          </div>
+        `).join("");
+      return `
+        <div class="modal-overlay" id="appsOverlay">
+          <div class="modal" id="appsModalBox">
+            <div class="modal-header">
+              <h2>Seller applications</h2>
+              <button class="close-btn" id="closeApplications">✕</button>
+            </div>
+            ${rows}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPaymentModal() {
+      if (!state.paymentProductId) return "";
+      const p = (state.products || []).find(x => String(x.id) === String(state.paymentProductId));
+      if (!p) return "";
+      const waNumber = (p.seller_contact || ADMIN_WHATSAPP).replace(/[^0-9]/g, "");
+      const waMsg = encodeURIComponent(`Hi, I'd like to buy "${p.name}" for ${p.price} on Fyndit.`);
+      return `
+        <div class="modal-overlay" id="paymentOverlay">
+          <div class="modal payment-modal" id="paymentModalBox">
+            <div class="modal-header">
+              <h2>Buy now</h2>
+              <button class="close-btn" id="closePayment">✕</button>
+            </div>
+            <p style="margin:0; font-weight:700; color:#06255B;">${esc(p.name)}</p>
+            <div class="p-price">${esc(p.price)}</div>
+            ${p.payment_info ? `<div class="p-info">${esc(p.payment_info)}</div>` : `<div class="p-info">Message us on WhatsApp to arrange payment and delivery.</div>`}
+            <a class="p-wa" href="https://wa.me/${waNumber}?text=${waMsg}" target="_blank" rel="noopener noreferrer">Confirm on WhatsApp →</a>
           </div>
         </div>
       `;
@@ -514,9 +723,14 @@
             <div class="cat-scroll">${catButtons}</div>
           </div>
 
+          <div class="sell-bar">
+            <span>Have something to sell? Books, art, anything.</span>
+            <button class="sell-btn btn" id="openSellForm">Sell with us</button>
+          </div>
+
           <div class="controls">
             ${state.error ? `<div class="err">${esc(state.error)}</div>` : ""}
-            ${state.editMode ? `<div class="admin-bar"><button class="add-btn btn" id="openAdd">+ Add</button><button class="manage-btn active" id="toggleManage">Done</button></div>` : ""}
+            ${state.editMode ? `<div class="admin-bar"><button class="add-btn btn" id="openAdd">+ Add</button><button class="manage-btn active" id="toggleManage">Done</button><button class="manage-btn" id="openApplications">Applications${(state.sellerApps || []).filter(a => a.status === "pending").length > 0 ? ` (${(state.sellerApps || []).filter(a => a.status === "pending").length})` : ""}</button></div>` : ""}
           </div>
 
           <main class="grid-main">${gridHtml}</main>
@@ -535,6 +749,9 @@
         ${renderModal()}
         ${renderPasswordModal()}
         ${renderGalleryModal()}
+        ${renderSellForm()}
+        ${renderApplicationsPanel()}
+        ${renderPaymentModal()}
       `;
 
       attachEvents();
@@ -567,7 +784,7 @@
       if (toggleManage) toggleManage.addEventListener("click", () => setState({ editMode: false }));
 
       const openAdd = document.getElementById("openAdd");
-      if (openAdd) openAdd.addEventListener("click", () => setState({ showAdd: true }));
+      if (openAdd) openAdd.addEventListener("click", () => setState({ showAdd: true, error: null }));
 
       const pwForm = document.getElementById("pwForm");
       if (pwForm) {
@@ -583,6 +800,7 @@
           try {
             await loginAdmin(email, password);
             setState({ isAdmin: true, showPwModal: false, pwError: false, editMode: true, loggingIn: false, failedAttempts: 0 });
+            loadApplications();
           } catch (e) {
             setState({ pwError: true, loggingIn: false, failedAttempts: state.failedAttempts + 1 });
           }
@@ -639,6 +857,73 @@
         });
       }
 
+      const openSellForm = document.getElementById("openSellForm");
+      if (openSellForm) openSellForm.addEventListener("click", () => setState({ showSellForm: true, sellSuccess: false, sellError: null }));
+
+      const closeSellForm = document.getElementById("closeSellForm");
+      if (closeSellForm) closeSellForm.addEventListener("click", () => setState({ showSellForm: false }));
+
+      const sellOverlay = document.getElementById("sellOverlay");
+      if (sellOverlay) {
+        sellOverlay.addEventListener("click", (e) => {
+          if (e.target.id === "sellOverlay") setState({ showSellForm: false });
+        });
+      }
+
+      const sellForm = document.getElementById("sellForm");
+      if (sellForm) {
+        sellForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const full_name = document.getElementById("s-name").value.trim();
+          const whatsapp = document.getElementById("s-whatsapp").value.trim();
+          const email = document.getElementById("s-email").value.trim();
+          const category = document.getElementById("s-category").value;
+          const product_desc = document.getElementById("s-desc").value.trim();
+          const sample_link = document.getElementById("s-link").value.trim();
+          if (!full_name || !whatsapp || !product_desc) return;
+          await submitApplication({ full_name, whatsapp, email, category, product_desc, sample_link });
+        });
+      }
+
+      const openApplications = document.getElementById("openApplications");
+      if (openApplications) {
+        openApplications.addEventListener("click", async () => {
+          setState({ showApplications: true });
+          await loadApplications();
+        });
+      }
+
+      const closeApplications = document.getElementById("closeApplications");
+      if (closeApplications) closeApplications.addEventListener("click", () => setState({ showApplications: false }));
+
+      const appsOverlay = document.getElementById("appsOverlay");
+      if (appsOverlay) {
+        appsOverlay.addEventListener("click", (e) => {
+          if (e.target.id === "appsOverlay") setState({ showApplications: false });
+        });
+      }
+
+      document.querySelectorAll("[data-app-approve]").forEach(btn => {
+        btn.addEventListener("click", () => updateApplicationStatus(btn.getAttribute("data-app-approve"), "approved"));
+      });
+      document.querySelectorAll("[data-app-reject]").forEach(btn => {
+        btn.addEventListener("click", () => updateApplicationStatus(btn.getAttribute("data-app-reject"), "rejected"));
+      });
+
+      document.querySelectorAll("[data-payment]").forEach(btn => {
+        btn.addEventListener("click", () => setState({ paymentProductId: btn.getAttribute("data-payment") }));
+      });
+
+      const closePayment = document.getElementById("closePayment");
+      if (closePayment) closePayment.addEventListener("click", () => setState({ paymentProductId: null }));
+
+      const paymentOverlay = document.getElementById("paymentOverlay");
+      if (paymentOverlay) {
+        paymentOverlay.addEventListener("click", (e) => {
+          if (e.target.id === "paymentOverlay") setState({ paymentProductId: null });
+        });
+      }
+
       const closeModal = document.getElementById("closeModal");
       if (closeModal) closeModal.addEventListener("click", () => setState({ showAdd: false }));
 
@@ -688,20 +973,49 @@
           const deliveryTime = document.getElementById("f-delivery-time").value.trim();
           const note = document.getElementById("f-note").value.trim();
           const link = document.getElementById("f-link").value.trim();
+          const sellerName = document.getElementById("f-seller-name").value.trim();
+          const sellerContact = document.getElementById("f-seller-contact").value.trim();
+          const isOwnProduct = document.getElementById("f-own-product").checked;
+          const paymentInfo = document.getElementById("f-payment-info").value.trim();
           const statusEl = document.getElementById("f-image-status");
-          if (!image) {
+          const showFormError = (msg) => {
             if (statusEl) {
-              statusEl.textContent = "Please add at least one photo before posting.";
+              statusEl.textContent = msg;
               statusEl.style.color = "#C0392B";
             }
+          };
+          if (statusEl) statusEl.style.color = "#8A8577";
+          if (!image) {
+            showFormError("Please add at least one photo before posting.");
             return;
           }
-          if (!name || !price || !link) return;
+          if (!name) {
+            showFormError("Please enter a product name.");
+            return;
+          }
+          if (!price) {
+            showFormError("Please enter a price.");
+            return;
+          }
+          if (!isOwnProduct && !link) {
+            showFormError("Please add a link, or check \"This is my own product\" if you don't have one.");
+            return;
+          }
           const submitBtn = document.getElementById("submitBtn");
           submitBtn.disabled = true;
           submitBtn.textContent = "Posting...";
-          await addProduct({ name, images: image, category, price, original_price: originalPrice, note, description, free_shipping: freeShipping, delivery_time: deliveryTime, link, spotted: "Just now" });
-          setState({ showAdd: false });
+          const ok = await addProduct({
+            name, images: image, category, price, original_price: originalPrice, note, description,
+            free_shipping: freeShipping, delivery_time: deliveryTime, link, spotted: "Just now",
+            seller_name: sellerName || null, seller_contact: sellerContact || null,
+            is_own_product: isOwnProduct, payment_info: paymentInfo || null,
+          });
+          if (ok) {
+            setState({ showAdd: false });
+          } else {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Post deal";
+          }
         });
       }
 
