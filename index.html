@@ -668,6 +668,14 @@
           const price = document.getElementById("f-price").value.trim();
           const note = document.getElementById("f-note").value.trim();
           const link = document.getElementById("f-link").value.trim();
+          const statusEl = document.getElementById("f-image-status");
+          if (!image) {
+            if (statusEl) {
+              statusEl.textContent = "Please add at least one photo before posting.";
+              statusEl.style.color = "#C0392B";
+            }
+            return;
+          }
           if (!name || !price || !link) return;
           const submitBtn = document.getElementById("submitBtn");
           submitBtn.disabled = true;
