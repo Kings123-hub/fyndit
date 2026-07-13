@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Fyndit — Nigeria's Marketplace for Everything: Gadgets, Fashion, Art, Books & More</title>
-<meta name="description" content="Fyndit is Nigeria's growing marketplace — curated deals, artwork, books, fashion and more, sold directly by verified sellers and Fyndit itself." />
+<title>Fyndit — Find Anything: Real Estate, Cars, Gadgets, Fashion, Art & More</title>
+<meta name="description" content="Fyndit is a marketplace where you can find and buy anything — houses, cars, gadgets, fashion, art, books and more — from verified sellers and Fyndit itself." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="manifest" href="/manifest.json" />
@@ -118,7 +118,7 @@
     const SUPABASE_KEY = "sb_publishable_F0VmiKD01luzB61meBYqSQ_y98ofr0I";
     const TABLE = "products";
     const REST_URL = `${SUPABASE_URL}/rest/v1/${TABLE}`;
-    const CATEGORIES = ["All", "Electronics", "Men", "Women", "Jewelry", "Bags", "Home", "Beauty", "Art & Paintings", "Books", "Handmade", "Other"];
+    const CATEGORIES = ["All", "Real Estate", "Vehicles", "Electronics", "Men", "Women", "Kids", "Shoes", "Jewelry", "Bags", "Home & Furniture", "Beauty", "Art & Paintings", "Books", "Handmade", "Services", "Other"];
 
     // 🔥 HOT SALES OF THE WEEK — HEAD BANNER 🔥
     // These images now come from Supabase (table "hero_banners", storage bucket "hero-banners"),
@@ -724,7 +724,7 @@
           </div>
 
           <div class="sell-bar">
-            <span>Have something to sell? Books, art, anything.</span>
+            <span>Got a house, car, or anything to sell?</span>
             <button class="sell-btn btn" id="openSellForm">Sell with us</button>
           </div>
 
