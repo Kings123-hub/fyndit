@@ -507,10 +507,9 @@
       const imgHtml = imgs.length > 0
         ? `<img src="${esc(imgs[0])}" alt="${esc(p.name)}" class="card-img" loading="lazy" onerror="this.parentElement.querySelector('.card-img-placeholder')?.remove();this.style.display='none';this.insertAdjacentHTML('afterend','<div class=&quot;card-img-placeholder&quot;>No photo</div>')" />`
         : `<div class="card-img-placeholder">No photo</div>`;
-      const galleryAttr = imgs.length > 1 ? `data-gallery="${p.id}"` : "";
       return `
-        <div class="card" data-id="${p.id}">
-          <div class="card-img-wrap" ${galleryAttr}>
+        <div class="card" data-id="${p.id}" data-open="${p.id}">
+          <div class="card-img-wrap">
             <div class="card-tag-overlay">${esc(p.spotted)}</div>
             ${imgs.length > 1 ? `<div class="card-img-count">${imgs.length} photos</div>` : ""}
             ${state.editMode ? `<button class="del-btn" data-del="${p.id}">✕</button>` : ""}
@@ -900,10 +899,10 @@
         });
       }
 
-      document.querySelectorAll("[data-gallery]").forEach(el => {
+      document.querySelectorAll("[data-open]").forEach(el => {
         el.addEventListener("click", (e) => {
-          if (e.target.closest(".del-btn")) return;
-          setState({ galleryProductId: el.getAttribute("data-gallery") });
+          if (e.target.closest(".del-btn, .card-cta")) return;
+          window.location.href = "/api/product/" + encodeURIComponent(el.getAttribute("data-open"));
         });
       });
 

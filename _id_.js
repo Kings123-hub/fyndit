@@ -42,6 +42,71 @@ export default async function handler(req, res) {
       <a href="/">Back to Fyndit</a></body></html>`);
   }
 
+  // Fetch real reviews for this product (no fake/seed data)
+  let reviews = [];
+  try {
+    const revResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/reviews?product_id=eq.${encodeURIComponent(id)}&select=*&order=created_at.desc`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
+    reviews = await revResp.json();
+    if (!Array.isArray(reviews)) reviews = [];
+  } catch (e) {
+    reviews = [];
+  }
+  const reviewCount = reviews.length;
+  const avgRating = reviewCount > 0
+    ? (reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / reviewCount)
+    : 0;
+
+  function starsHtml(value) {
+    const rounded = Math.round(value * 2) / 2; // nearest half star
+    let out = "";
+    for (let i = 1; i <= 5; i++) {
+      if (rounded >= i) out += "★";
+      else if (rounded >= i - 0.5) out += "★"; // treat half as full visually, simplest for now
+      else out += "☆";
+    }
+    return out;
+  }
+
+  const reviewsSection = `
+    <div class="section-card" id="reviewsCard">
+      <div class="section-title">Ratings &amp; reviews</div>
+      ${reviewCount > 0 ? `
+        <div class="rev-summary">
+          <span class="rev-stars">${starsHtml(avgRating)}</span>
+          <span class="rev-score">${avgRating.toFixed(1)}</span>
+          <span class="rev-count">(${reviewCount} review${reviewCount === 1 ? "" : "s"})</span>
+        </div>
+        <ul class="rev-list">
+          ${reviews.map(r => `
+            <li class="rev-item">
+              <div class="rev-item-top">
+                <span class="rev-item-stars">${starsHtml(Number(r.rating || 0))}</span>
+                <span class="rev-item-name">${esc(r.reviewer_name)}</span>
+              </div>
+              ${r.comment ? `<p class="rev-item-comment">${esc(r.comment)}</p>` : ""}
+            </li>
+          `).join("")}
+        </ul>
+      ` : `
+        <p class="rev-empty">☆☆☆☆☆ No reviews yet — be the first to review this product.</p>
+      `}
+      <button type="button" class="rev-write-btn" id="revWriteBtn">Write a review</button>
+      <form id="revForm" class="rev-form" style="display:none;">
+        <div class="rev-form-stars" id="revStarPicker" data-value="0">
+          ${[1,2,3,4,5].map(n => `<span class="rev-star-pick" data-star="${n}">☆</span>`).join("")}
+        </div>
+        <input type="hidden" id="revRatingInput" value="0" />
+        <input type="text" id="revNameInput" placeholder="Your name" maxlength="60" required />
+        <textarea id="revCommentInput" placeholder="Share your experience (optional)" maxlength="1000" rows="3"></textarea>
+        <button type="submit" class="rev-submit-btn" id="revSubmitBtn">Submit review</button>
+        <p class="rev-status" id="revStatus"></p>
+      </form>
+    </div>
+  `;
+
   // Fetch a few other products to show as "More on Fyndit"
   let moreProducts = [];
   try {
@@ -82,6 +147,7 @@ export default async function handler(req, res) {
     discountPercent = Math.round(((originalNum - priceNum) / originalNum) * 100);
   }
 
+  const idForClientJs = /^\d+$/.test(String(id)) ? String(id) : JSON.stringify(id);
   const pageUrl = `https://fyndit-eight.vercel.app/api/product/${encodeURIComponent(id)}`;
   const title = `${esc(product.name)} — ${esc(product.price)} | Fyndit`;
   const description = product.note
@@ -216,6 +282,27 @@ export default async function handler(req, res) {
     .more-name { font-size: 12px; font-weight: 700; padding: 8px 8px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .more-price { font-size: 12.5px; font-weight: 800; color: #FE6402; padding: 3px 8px 9px; }
     a.back { display: block; text-align: center; margin: 18px 0 0; color: #8A8577; font-size: 13px; text-decoration: none; }
+    .rev-summary { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .rev-stars { color: #FCC601; font-size: 16px; letter-spacing: 1px; }
+    .rev-score { font-weight: 900; font-size: 15px; color: #06255B; }
+    .rev-count { font-size: 12.5px; color: #8A8577; }
+    .rev-empty { font-size: 13.5px; color: #8A8577; margin: 0 0 12px; }
+    .rev-list { list-style: none; margin: 0 0 12px; padding: 0; }
+    .rev-item { padding: 10px 0; border-top: 1px solid #F0EBE0; }
+    .rev-item:first-child { border-top: none; }
+    .rev-item-top { display: flex; align-items: center; gap: 8px; }
+    .rev-item-stars { color: #FCC601; font-size: 13px; letter-spacing: 1px; }
+    .rev-item-name { font-size: 12.5px; font-weight: 700; color: #06255B; }
+    .rev-item-comment { font-size: 13.5px; color: #635E52; margin: 4px 0 0; line-height: 1.5; }
+    .rev-write-btn { background: none; border: 1.5px solid #FE6402; color: #FE6402; font-weight: 800; font-size: 13px; padding: 9px 14px; border-radius: 9px; width: 100%; }
+    .rev-form { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .rev-form-stars { font-size: 24px; letter-spacing: 4px; }
+    .rev-star-pick { cursor: pointer; color: #D8D2C6; }
+    .rev-star-pick.filled { color: #FCC601; }
+    .rev-form input, .rev-form textarea { border: 1.5px solid #E3DDD0; border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: inherit; outline: none; }
+    .rev-submit-btn { background: #06255B; color: #fff; font-weight: 800; font-size: 13.5px; padding: 11px 0; border: none; border-radius: 9px; }
+    .rev-submit-btn:disabled { background: #D8D2C6; }
+    .rev-status { font-size: 12.5px; color: #8A8577; margin: 0; min-height: 16px; }
   </style>
 </head>
 <body>
@@ -249,6 +336,7 @@ export default async function handler(req, res) {
 
   ${benefitsBlock}
   ${descriptionBlock}
+  ${reviewsSection}
   ${trustBlock}
   ${product.is_own_product && product.payment_info ? `<div class="payment-info">${esc(product.payment_info)}</div>` : ""}
 
@@ -277,6 +365,74 @@ export default async function handler(req, res) {
           dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); });
         });
       }
+      var writeBtn = document.getElementById('revWriteBtn');
+      var revForm = document.getElementById('revForm');
+      if (writeBtn && revForm) {
+        writeBtn.addEventListener('click', function () {
+          revForm.style.display = revForm.style.display === 'none' ? 'flex' : 'none';
+        });
+      }
+
+      var starPicker = document.getElementById('revStarPicker');
+      var ratingInput = document.getElementById('revRatingInput');
+      if (starPicker && ratingInput) {
+        var starEls = starPicker.querySelectorAll('.rev-star-pick');
+        starEls.forEach(function (el) {
+          el.addEventListener('click', function () {
+            var val = parseInt(el.getAttribute('data-star'), 10);
+            ratingInput.value = val;
+            starEls.forEach(function (s) {
+              var sv = parseInt(s.getAttribute('data-star'), 10);
+              s.textContent = sv <= val ? '★' : '☆';
+              s.classList.toggle('filled', sv <= val);
+            });
+          });
+        });
+      }
+
+      if (revForm) {
+        revForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var statusEl = document.getElementById('revStatus');
+          var submitBtn = document.getElementById('revSubmitBtn');
+          var rating = parseInt(ratingInput.value, 10);
+          var name = document.getElementById('revNameInput').value.trim();
+          var comment = document.getElementById('revCommentInput').value.trim();
+          if (!rating) {
+            if (statusEl) statusEl.textContent = 'Please tap a star to choose a rating.';
+            return;
+          }
+          if (!name) {
+            if (statusEl) statusEl.textContent = 'Please enter your name.';
+            return;
+          }
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Submitting...';
+          fetch('${SUPABASE_URL}/rest/v1/reviews', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': '${SUPABASE_KEY}',
+              'Authorization': 'Bearer ${SUPABASE_KEY}',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              product_id: ${idForClientJs},
+              reviewer_name: name,
+              rating: rating,
+              comment: comment || null
+            })
+          }).then(function (r) {
+            if (!r.ok) throw new Error('Failed');
+            window.location.reload();
+          }).catch(function () {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit review';
+            if (statusEl) statusEl.textContent = 'Something went wrong. Please try again.';
+          });
+        });
+      }
+
       var shareBtn = document.getElementById('shareBtn');
       if (shareBtn) {
         shareBtn.addEventListener('click', function () {
