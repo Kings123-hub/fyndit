@@ -519,7 +519,7 @@
           <div class="card-body">
             <h3 class="card-name">${esc(p.name)}</h3>
             ${p.seller_name ? `<p class="card-seller">Sold by ${esc(p.seller_name)}</p>` : ""}
-            ${p.note ? `<p class="card-note">${esc(p.note)}</p>` : ""}
+            ${p.note ? `<p class="card-note">${esc(p.note)}</p>` : (p.category ? `<p class="card-note">${esc(p.category)}</p>` : "")}
             <div class="card-price">${esc(p.price)}</div>
             ${p.is_own_product
               ? `<button class="card-cta btn" data-payment="${p.id}">Get deal →</button>`
