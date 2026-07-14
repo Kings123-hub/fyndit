@@ -42,6 +42,30 @@ export default async function handler(req, res) {
       <a href="/">Back to Fyndit</a></body></html>`);
   }
 
+  // Fetch a few other products to show as "More on Fyndit"
+  let moreProducts = [];
+  try {
+    const moreResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/products?id=neq.${encodeURIComponent(id)}&select=id,name,price,images&order=created_at.desc&limit=6`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
+    moreProducts = await moreResp.json();
+    if (!Array.isArray(moreProducts)) moreProducts = [];
+  } catch (e) {
+    moreProducts = [];
+  }
+
+  function firstImage(imgField) {
+    try {
+      let imgs = typeof imgField === "string" ? JSON.parse(imgField) : (imgField || []);
+      if (!Array.isArray(imgs)) imgs = [imgs].filter(Boolean);
+      return imgs[0] || "https://fyndit-eight.vercel.app/icon-512.png";
+    } catch (e) {
+      const parts = String(imgField || "").split(",").map(s => s.trim()).filter(Boolean);
+      return parts[0] || "https://fyndit-eight.vercel.app/icon-512.png";
+    }
+  }
+
   let images = [];
   try {
     images = typeof product.images === "string" ? JSON.parse(product.images) : (product.images || []);
@@ -71,13 +95,59 @@ export default async function handler(req, res) {
   `).join("");
 
   const galleryDots = images.length > 1
-    ? `<div class="g-dots">${images.map(() => `<div class="g-dot"></div>`).join("")}</div>`
+    ? `<div class="g-dots">${images.map((_, i) => `<div class="g-dot${i === 0 ? " active" : ""}"></div>`).join("")}</div>`
     : "";
 
   const descLines = (product.description || "").split("\n").map(s => s.trim()).filter(Boolean);
-  const descriptionList = descLines.length > 0
-    ? `<div class="desc-title">Description</div><ul class="desc-list">${descLines.map(line => `<li>${esc(line)}</li>`).join("")}</ul>`
+  const descriptionBlock = descLines.length > 0
+    ? `
+      <details class="section-card" open>
+        <summary>Description</summary>
+        <ul class="desc-list">${descLines.map(line => `<li>${esc(line)}</li>`).join("")}</ul>
+      </details>
+    `
     : "";
+
+  const benefits = [];
+  if (product.free_shipping) benefits.push("Free shipping on this item");
+  if (product.delivery_time) benefits.push(`Arrives in as little as ${esc(product.delivery_time)}`);
+  benefits.push("Reviewed by Fyndit before being listed");
+  benefits.push(product.is_own_product ? "Sold and fulfilled directly by Fyndit" : "You deal directly with the seller");
+
+  const benefitsBlock = `
+    <div class="section-card">
+      <div class="section-title">Service &amp; benefits</div>
+      <ul class="benefits-list">
+        ${benefits.map(b => `<li>✓ ${esc(b)}</li>`).join("")}
+      </ul>
+    </div>
+  `;
+
+  const trustBlock = `
+    <div class="section-card trust-card">
+      <div class="section-title">Buying on Fyndit</div>
+      <ul class="trust-list">
+        <li>🔍 Every listing is checked by Fyndit before it goes live</li>
+        <li>💬 You confirm final details and pay ${product.is_own_product ? "Fyndit" : "the seller"} directly on WhatsApp</li>
+        <li>🧾 Sales are final — please confirm size, condition and details before paying</li>
+      </ul>
+    </div>
+  `;
+
+  const moreGrid = moreProducts.length > 0 ? `
+    <div class="more-section">
+      <div class="section-title" style="padding:0 18px;">More on Fyndit</div>
+      <div class="more-grid">
+        ${moreProducts.map(p => `
+          <a class="more-card" href="/api/product/${esc(p.id)}">
+            <img src="${esc(firstImage(p.images))}" alt="${esc(p.name)}" loading="lazy" />
+            <div class="more-name">${esc(p.name)}</div>
+            <div class="more-price">${esc(p.price)}</div>
+          </a>
+        `).join("")}
+      </div>
+    </div>
+  ` : "";
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -96,59 +166,132 @@ export default async function handler(req, res) {
   <link rel="icon" type="image/png" href="/icon-192.png" />
   <style>
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; padding: 0 0 30px; color: #06255B; background: #F7F5F2; }
+    body { font-family: -apple-system, 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; padding: 0 0 90px; color: #06255B; background: #F7F5F2; }
+    .top-bar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(247,245,242,0.94); backdrop-filter: blur(6px); border-bottom: 1px solid #EDE8E0; }
+    .top-bar a.back-icon { color: #06255B; text-decoration: none; font-size: 20px; padding: 4px 8px; }
+    .top-bar .brand { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 15px; color: #06255B; }
+    .top-bar button.share-icon { background: none; border: none; font-size: 17px; padding: 4px 8px; color: #06255B; }
     .g-wrap { position: relative; background: #EDE8E0; }
     .g-scroll { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
     .g-scroll::-webkit-scrollbar { display: none; }
     .g-slide { flex: 0 0 100%; scroll-snap-align: start; aspect-ratio: 4/5; }
     .g-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .g-counter { position: absolute; top: 12px; left: 12px; background: rgba(6,37,91,0.65); color: #fff; font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
     .g-dots { display: flex; gap: 5px; justify-content: center; padding: 10px 0; }
     .g-dot { width: 6px; height: 6px; border-radius: 999px; background: rgba(6,37,91,0.25); }
-    .content { padding: 16px 18px; }
+    .g-dot.active { background: #FE6402; width: 16px; border-radius: 999px; }
+    .content { padding: 16px 18px 4px; }
+    .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .tag { font-size: 11px; font-weight: 800; padding: 4px 9px; border-radius: 6px; }
+    .tag.sale { background: #FE6402; color: #fff; }
+    .tag.ship { background: #E8F5E9; color: #1B6B2E; }
+    .tag.cat { background: #EDE8E0; color: #06255B; }
     h1 { font-size: 19px; margin: 0 0 8px; line-height: 1.35; }
+    .sold-by { display: block; font-size: 12px; font-weight: 800; color: #FE6402; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 6px; }
     .price-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
-    .price { font-size: 26px; font-weight: 900; color: #FE6402; }
+    .price { font-size: 27px; font-weight: 900; color: #FE6402; }
     .original-price { font-size: 15px; color: #8A8577; text-decoration: line-through; }
-    .discount-badge { display: inline-block; background: #06255B; color: #fff; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 6px; margin-bottom: 14px; }
-    .badges-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 16px; }
-    .badge { display: inline-flex; align-items: center; gap: 4px; background: #E8F5E9; color: #1B6B2E; font-size: 12.5px; font-weight: 700; padding: 5px 10px; border-radius: 999px; }
-    .desc-title { font-size: 14px; font-weight: 800; margin: 4px 0 8px; }
-    .desc-list { margin: 0 0 22px; padding-left: 18px; }
+    .discount-badge { display: inline-block; background: #06255B; color: #fff; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 6px; margin: 4px 0 14px; }
+    .delivery-banner { display: flex; align-items: center; gap: 8px; background: #FFF3D6; color: #7A5A00; font-size: 13px; font-weight: 700; padding: 10px 12px; border-radius: 10px; margin: 6px 0 16px; }
+    .note { color: #635E52; font-size: 14.5px; line-height: 1.5; margin: 0 0 16px; }
+    .section-card { background: #FFFFFF; border: 1px solid #EDE8E0; border-radius: 12px; padding: 14px 16px; margin: 0 18px 14px; }
+    .section-title { font-size: 13.5px; font-weight: 800; margin: 0 0 8px; }
+    details.section-card summary { font-size: 13.5px; font-weight: 800; cursor: pointer; list-style: none; }
+    details.section-card summary::-webkit-details-marker { display: none; }
+    details.section-card summary::after { content: '▾'; float: right; color: #8A8577; }
+    details.section-card[open] summary::after { content: '▴'; }
+    .desc-list { margin: 10px 0 0; padding-left: 18px; }
     .desc-list li { font-size: 14px; color: #635E52; line-height: 1.6; margin-bottom: 4px; }
-    .note { color: #635E52; font-size: 14.5px; line-height: 1.5; margin: 10px 0 22px; }
-    .sold-by { display: inline-block; font-size: 12px; font-weight: 800; color: #FE6402; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 6px; }
-    .payment-info { background: #EDE8E0; border-radius: 10px; padding: 12px 14px; font-size: 13.5px; color: #06255B; line-height: 1.6; margin: 10px 0 18px; white-space: pre-wrap; }
-    a.cta { display: block; text-align: center; background: #FE6402; color: #06255B; font-weight: 900; font-size: 17px; text-decoration: none; padding: 16px; border-radius: 12px; box-shadow: 0 4px 14px rgba(254,100,2,0.35); }
-    a.back { display: block; text-align: center; margin-top: 18px; color: #8A8577; font-size: 13px; text-decoration: none; }
+    .benefits-list, .trust-list { margin: 0; padding: 0; list-style: none; }
+    .benefits-list li { font-size: 13.5px; color: #1B6B2E; font-weight: 700; line-height: 1.9; }
+    .trust-list li { font-size: 13.5px; color: #635E52; line-height: 1.9; }
+    .payment-info { background: #EDE8E0; border-radius: 10px; padding: 12px 14px; font-size: 13.5px; color: #06255B; line-height: 1.6; margin: 0 18px 14px; white-space: pre-wrap; }
+    .cta-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; background: #FFFFFF; border-top: 1px solid #EDE8E0; padding: 10px 16px; display: flex; align-items: center; gap: 12px; z-index: 20; }
+    .cta-bar .cta-price { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 17px; color: #06255B; white-space: nowrap; }
+    a.cta { flex: 1; text-align: center; background: #FE6402; color: #06255B; font-weight: 900; font-size: 15.5px; text-decoration: none; padding: 13px; border-radius: 10px; }
+    .more-section { margin-top: 6px; padding-bottom: 8px; }
+    .more-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px 18px 0; }
+    .more-card { display: block; background: #fff; border: 1px solid #EDE8E0; border-radius: 12px; overflow: hidden; text-decoration: none; color: #06255B; }
+    .more-card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+    .more-name { font-size: 12px; font-weight: 700; padding: 8px 8px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .more-price { font-size: 12.5px; font-weight: 800; color: #FE6402; padding: 3px 8px 9px; }
+    a.back { display: block; text-align: center; margin: 18px 0 0; color: #8A8577; font-size: 13px; text-decoration: none; }
   </style>
 </head>
 <body>
+  <div class="top-bar">
+    <a class="back-icon" href="/">&larr;</a>
+    <span class="brand">Fyndit</span>
+    <button class="share-icon" id="shareBtn" type="button">&#x1F517;</button>
+  </div>
+
   <div class="g-wrap">
-    <div class="g-scroll">${gallerySlides}</div>
+    <div class="g-scroll" id="gScroll">${gallerySlides}</div>
+    ${images.length > 1 ? `<div class="g-counter" id="gCounter">1/${images.length}</div>` : ""}
     ${galleryDots}
   </div>
+
   <div class="content">
-    ${product.seller_name ? `<div class="sold-by">Sold by ${esc(product.seller_name)}</div>` : ""}
+    <div class="tag-row">
+      ${discountPercent ? `<span class="tag sale">${discountPercent}% OFF</span>` : ""}
+      ${product.free_shipping ? `<span class="tag ship">Free shipping</span>` : ""}
+      ${product.category ? `<span class="tag cat">${esc(product.category)}</span>` : ""}
+    </div>
+    ${product.seller_name ? `<span class="sold-by">Sold by ${esc(product.seller_name)}</span>` : ""}
     <h1>${esc(product.name)}</h1>
     <div class="price-row">
       <span class="price">${esc(product.price)}</span>
       ${product.original_price ? `<span class="original-price">${esc(product.original_price)}</span>` : ""}
     </div>
-    ${discountPercent ? `<div class="discount-badge">${discountPercent}% OFF</div>` : ""}
-    <div class="badges-row">
-      ${product.free_shipping ? `<span class="badge">✓ Free shipping</span>` : ""}
-      ${product.delivery_time ? `<span class="badge">🚚 Arrives in ${esc(product.delivery_time)}</span>` : ""}
-    </div>
+    ${product.delivery_time ? `<div class="delivery-banner">🚚 Arrives in as little as ${esc(product.delivery_time)}</div>` : ""}
     ${product.note ? `<div class="note">${esc(product.note)}</div>` : ""}
-    ${descriptionList}
-    ${product.is_own_product ? `
-      <div class="payment-info">${product.payment_info ? esc(product.payment_info) : "Message us on WhatsApp to arrange payment and delivery."}</div>
-      <a class="cta" href="https://wa.me/${esc((product.seller_contact || "2347082795417").replace(/[^0-9]/g, ""))}?text=${encodeURIComponent(`Hi, I'd like to buy "${product.name}" for ${product.price} on Fyndit.`)}" target="_blank" rel="noopener noreferrer">View this deal &rarr;</a>
-    ` : `
-      <a class="cta" href="${esc(product.link)}" target="_blank" rel="noopener noreferrer">View this deal &rarr;</a>
-    `}
+  </div>
+
+  ${benefitsBlock}
+  ${descriptionBlock}
+  ${trustBlock}
+  ${product.is_own_product && product.payment_info ? `<div class="payment-info">${esc(product.payment_info)}</div>` : ""}
+
+  <div class="content">
     <a class="back" href="/">&larr; More deals on Fyndit</a>
   </div>
+
+  ${moreGrid}
+
+  <div class="cta-bar">
+    <span class="cta-price">${esc(product.price)}</span>
+    ${product.is_own_product
+      ? `<a class="cta" href="https://wa.me/${esc((product.seller_contact || "2347082795417").replace(/[^0-9]/g, ""))}?text=${encodeURIComponent(`Hi, I'd like to buy "${product.name}" for ${product.price} on Fyndit.`)}" target="_blank" rel="noopener noreferrer">Get deal &rarr;</a>`
+      : `<a class="cta" href="${esc(product.link)}" target="_blank" rel="noopener noreferrer">Get deal &rarr;</a>`}
+  </div>
+
+  <script>
+    (function () {
+      var scroller = document.getElementById('gScroll');
+      var counter = document.getElementById('gCounter');
+      var dots = document.querySelectorAll('.g-dot');
+      if (scroller) {
+        scroller.addEventListener('scroll', function () {
+          var idx = Math.round(scroller.scrollLeft / scroller.clientWidth);
+          if (counter) counter.textContent = (idx + 1) + '/' + dots.length;
+          dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); });
+        });
+      }
+      var shareBtn = document.getElementById('shareBtn');
+      if (shareBtn) {
+        shareBtn.addEventListener('click', function () {
+          var url = window.location.href;
+          if (navigator.share) {
+            navigator.share({ title: document.title, url: url }).catch(function () {});
+          } else if (navigator.clipboard) {
+            navigator.clipboard.writeText(url);
+            shareBtn.textContent = '✓';
+            setTimeout(function () { shareBtn.textContent = '🔗'; }, 1500);
+          }
+        });
+      }
+    })();
+  </script>
 </body>
 </html>`;
 
